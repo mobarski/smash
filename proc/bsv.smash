@@ -1,0 +1,25 @@
+[python]
+code <<<
+	import bsv
+	import dbpool
+	import sqlite
+	
+	data = get('data')
+	
+	reader = bsv.rowiter(data)
+	# TODO refactor csv bsv re
+	tab = get('tab')
+	it = get('iter')
+	if tab:
+		db = dbpool.connect(get('db'))
+		names = get('names', split='\s+')
+		col_cnt = len(names)
+		
+		sql_create = sqlite.sql_create(tab, names)
+		sql_insert = sqlite.sql_insert(tab, col_cnt)
+			
+		db.executescript(sql_create)
+		db.executemany(sql_insert, reader)
+		db.commit()
+	elif it:
+		frame.vars[it] = list(reader)

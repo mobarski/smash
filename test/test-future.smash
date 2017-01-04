@@ -1,0 +1,44 @@
+[default]
+db = sqlite('test.db')
+dlm = ;
+enc = cp1250
+
+[if]
+expr=int($a) > 10
+when <<<
+	[python]
+	code < test.py
+	[runzzz]
+	args = 1 2 3
+else <<<
+	[mail]
+	to = admins@company.com
+	subject = sorry :(
+
+
+----------------------------
+
+[default]
+db = ora
+
+[db]
+default = sqlite(':memory:')
+ora = oracle(user='',pwd='',db='')
+
+[sql]
+db = ora
+sql = select * from dual
+
+[use]
+module = kimball
+
+[new-dim]
+intab = aaa
+outtab = dim_cust
+
+[new-fact]
+__in = 
+__out = 
+cust_id = dim dim_cust dc_name cust_name
+height = fact h*100
+

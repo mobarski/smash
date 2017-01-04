@@ -1,0 +1,50 @@
+[proc]
+name = hello
+smash <<<
+	[python]
+	code <<<
+		print('hello {0} and {1} and $aaa'.format(get('aaa'),frame.arg('bbb')))
+
+[hello]
+aaa = 11
+bbb = 22
+
+[python]
+let iter = [(1,2),(3,4),(5,6)]
+let proc = 'hello'
+let names = 'aaa   bbb'
+
+[python]
+code <<<
+	from smash import run_frame
+	
+	it = get('iter')
+	names = get('names', split='\s+')
+	proc_name = get('proc')
+	
+	for i,values in enumerate(it):
+		proc_args = list(zip(names,values))
+		f = frame.child(i+1, proc_name, proc_args, line=0, filename="__TODO__")
+		run_frame(f)
+
+
+[bsv]
+data <<<
+	Ralph Kimball
+	Bill Inmon
+tab = authors
+names = name surname
+
+[sql]
+iter authors = select name,surname from authors
+
+[proc]
+name = hello
+smash <<<
+	[python]
+	code = print("hello",get('n'),get('s')+'!')
+
+[loop]
+iter = authors
+proc = hello
+names = n s

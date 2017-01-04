@@ -1,0 +1,9 @@
+[let]
+x = 42
+y = 123
+
+[python]
+print = eval(get('x'))+10
+let z = [eval(get('x'))+10,0]
+pprint = vars(frame)
+debug = y x z

@@ -1,0 +1,56 @@
+[python]
+code <<<
+	import dbpool
+	import sqlite
+	
+	def join(dlm,lst): return dlm.join(lst)
+	def exclude(pat,lst): return [x for x in lst if not re.search(pat,x)]
+	def select(pat,lst): return [x for x in lst if re.search(pat,x)]
+	def split(pat,s): return [x.strip() for x in re.split(pat,s)]
+	fun_map = {'split':split,'find':re.findall,'join':join,'exclude':exclude,'select':select}
+	
+	data = get('data')
+	tab = get('tab')
+	it = get('iter')
+	flags = get('flags','x')
+	re_flags = "(?%s)"%flags if flags else ''
+	
+	todo = []
+	for arg,val in frame.args:
+		if arg in fun_map.keys():
+			if arg not in ('join'):
+				val = re_flags+val
+			todo += [(arg,fun_map[arg],val)]
+	
+	def is_like_str(x): return hasattr(x,'lower')
+	global f,a # WTF FIX for python 3.5, otherwise - NameError: global name 'f' is not defined
+	out = data
+	for op,f,a in todo[:]:
+		if is_like_str(out):
+			use_list = 0
+		elif len(out)>0 and is_like_str(out[0]) and op in ('join'):
+			use_list = 0
+		elif op in ('exclude','select'):
+			use_list = 0
+		else:
+			use_list = 1
+		if use_list:
+			out = [f(a,x) for x in out]
+		else:
+			out = f(a,out)
+
+	reader = out
+	# TODO refactor csv bsv re
+	if tab:
+		db = dbpool.connect(get('db'))
+		names = get('names', split='\s+')
+		col_cnt = len(names)
+		
+		sql_create = sqlite.sql_create(tab, names)
+		sql_insert = sqlite.sql_insert(tab, col_cnt)
+			
+		db.executescript(sql_create)
+		db.executemany(sql_insert, reader)
+		db.commit()
+	if it: # NOTE if insted of elif
+		frame.vars[it] = list(reader)

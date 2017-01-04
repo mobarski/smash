@@ -1,0 +1,40 @@
+[python]
+let space = " "
+
+[re]
+flags = 
+data <<<
+	zzz aaa bbb 1924-12-05 42.3 USD
+	    
+	    
+	    
+	qqqq wwww ee 1924-12-05 1.42 PLN
+split = \n
+#exclude = ^$
+select = .
+split = \s+
+xjoin = $space
+xjoin = $space
+xfind = (\d\d\d\d-\d\d-\d\d) \s+ (\d+[.]\d+) \s+ ([A-Z]{3})
+#join = ,
+#exclude = 
+#join = #
+#exclude = 
+#split = [#]
+#exclude = 
+#split = ,
+xfind = \d\d\d\d-\d\d-\d\d \s+ \d+[.]\d+ \s+ [A-Z]{3}
+xsplit = \s+
+xjoin = $space
+xjoin = $space
+xfind = (\S+) \s+ (\S+) \s+ (\d{4}-\d\d-\d\d) \s+ (\d+[.]\d+) \s+ (\S{3})
+names = date amount currency
+#tab = zzz
+iter = xxx
+
+
+[python]
+pprint = get('xxx')
+
+[none]
+print = select currency,amount,date from zzz

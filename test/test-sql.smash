@@ -1,0 +1,23 @@
+[bsv]
+tab = stg
+names = x y z
+data <<<
+	1 2 a
+	3 4 3
+
+[sql]
+code <<<
+	drop table if exists stg2;
+	create table stg2 as
+		select
+			x as a,
+			y as b,
+			z as c
+		from stg;
+print = select md5(a||b||c),a,b,c from stg2
+let cnt = select count(*) from stg2
+let x = select * from stg
+
+[python]
+print = get('cnt')
+debug = x

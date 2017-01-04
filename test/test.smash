@@ -1,0 +1,28 @@
+[none]
+tab = stg
+names = x y z
+data <<<
+	1 2 a
+	3 4 3
+	
+[none]
+xtab = stg3
+iter=x1
+dlm = ;
+names = a b c
+data <<<
+	1;2;3
+	4;5;6
+
+[python]
+pprint = get('x1')
+
+[none]
+code <<<
+	drop table if exists stg2;
+	create table stg2 as
+		select * from stg;
+let x = select md5('abc')
+print = select z,y,x from stg
+print = select md5(z) from stg
+#print = select * from stg3

@@ -1,0 +1,11 @@
+[hint]
+hint = Wykonanie kodu SQL na bazie zewnetrznej lub wbudowanej.
+db = Konstruktor polaczenia do bazy danych. Domyslnie sqlite(':memory:').
+code = Kod SQL do wykonania. Mozna laczyc kilka zapytan oddzielajac je srednikami.
+let x = Pobranie wartosci z zapytania do zmiennej. 
+list x = Pobranie listy wartosci z zapytania do zmiennej.
+print = Wypisanie listy wartosci z zapytania na ekran.
+
+[python]
+code <<<
+	...

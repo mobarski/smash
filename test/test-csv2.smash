@@ -1,0 +1,22 @@
+[csv]
+tab = publications
+names <<<
+	auth_name
+	auth_surname
+	pub_title
+data <<<
+	Bill,Inmon,Data Lake Architecture
+	Ralph,Kimbal,The Data Warehouse ETL Toolkit
+	Daniel,Linstedt,Super Charge Your Data Warehouse
+	Laurence,Corr,Agile Data Warehouse Design
+	Nathan,Marz,Big Data
+	Lars,Ronnback,Anchor Modeling Introduction
+	Josh,Wills,What Comes After The Star Schema?
+
+[sql]
+print <<<
+	select
+		substr(auth_name,1,1)||'.'||auth_surname as author,
+		pub_title as title
+	from publications
+

@@ -1,0 +1,6 @@
+[let]
+x = 42
+
+[python]
+code <<<
+	print("hello ",get('x'))

@@ -1,0 +1,25 @@
+[let]
+x = 42
+y = 111
+z = 123
+
+[python]
+code = print("$x $y $z")
+
+[bsv]
+tab=test
+names = q w e
+data <<<
+	1 2 3
+	5 6 7
+
+[sql]
+print = select * from test
+
+[if]
+if=1<2
+code<<<
+	[python]
+	code=print('aaa')
+	[python]
+	code=print('bbb')

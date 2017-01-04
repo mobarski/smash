@@ -1,0 +1,10 @@
+[let]
+x1 = daniel
+x2 = icecream
+y1= ralph
+y2 = chicken
+
+[template]
+template <<<
+	hello $x1 have some $x2
+	hello $y1 have some $y2

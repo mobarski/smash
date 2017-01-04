@@ -1,0 +1,11 @@
+[python]
+code <<<
+	# TODO return code
+	# TODO capture output
+	# TODO sync / async
+	# TODO wait for async
+	import os
+	for k,v in frame.args:
+		if k=='cmd':
+			cmd = frame.render(v)
+			os.system(cmd)

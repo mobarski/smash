@@ -1,0 +1,29 @@
+[python]
+code <<<
+	import csv
+	import dbpool
+	import io
+	import sqlite
+	
+	data = get('data','').strip()
+	delimiter = get('dlm',',')
+
+	# TODO refactor csv bsv re
+	tab = get('tab')
+	it = get('iter')
+	if tab:
+		reader = csv.reader(io.StringIO(data),delimiter=delimiter)
+		db = dbpool.connect(get('db'))
+		names = get('names', split='\s+')
+		col_cnt = len(names)
+
+		sql_create = sqlite.sql_create(tab, names)
+		sql_insert = sqlite.sql_insert(tab, col_cnt)
+		
+		db.executescript(sql_create)
+		db.executemany(sql_insert, reader)
+		db.commit()
+	if it:
+		reader = csv.reader(io.StringIO(data),delimiter=delimiter)
+		frame.vars[it] = list(reader)
+	

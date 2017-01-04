@@ -1,0 +1,21 @@
+[let]
+cols <<<
+	externalid status createdate updatedate siloid confirmedtime logintime
+	logouttime faillogintime faillogincount previouslogintime login
+	password firstname lastname nick avatar sex description
+	changepasswordrequired registertype registerserviceid birthdate
+	publicaccess isarchiveafterimport confirmtype
+
+[python]
+code = import bsv
+let columns = get('cols',split='\s+')
+debug = columns
+
+[sql]
+code <<<
+	drop table if exists zzz;
+	create table zzz (id,name);
+	insert into zzz values (1,'zzz')
+print = select * from zzz
+
+	

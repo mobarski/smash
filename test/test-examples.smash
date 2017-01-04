@@ -1,0 +1,16 @@
+[let]
+name = Ralph
+surname = Kimball
+signature <<<
+	regards,
+	maciek
+
+[template]
+template <<<
+	Hello $name $surname!
+	I enjoyed your book very much.
+	$signature
+outvar = msg
+
+[python]
+debug = msg

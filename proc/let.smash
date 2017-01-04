@@ -1,0 +1,4 @@
+[python]
+code <<<
+	for k,v in frame.args_iter():
+		frame.vars[k] = v

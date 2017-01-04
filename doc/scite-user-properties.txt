@@ -1,0 +1,16 @@
+command.go.*.smash=C:\maciek\apps\python32\App\python -u c:\maciek\apps\smash\smash.py "$(FileNameExt)"
+command.build.*.smash=C:\maciek\apps\python27\App\pythonw -u c:\maciek\apps\smash\smash.py "$(FileNameExt)"
+file.patterns.props=$(file.patterns.props);*.smash
+
+command.go.*.py=C:\maciek\apps\python32\App\pythonw -u "$(FileNameExt)"
+command.build.*.py=C:\maciek\apps\python27\App\pythonw -u "$(FileNameExt)"
+
+user.shortcuts=\
+Ctrl+Up|2620|\
+Ctrl+Down|2621|\
+F1|IDM_FINDINFILES|
+
+comment.block.sql=-- 
+
+find.files=*.py *.sql *.txt *.md *.rst *.ini *.smash
+

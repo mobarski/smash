@@ -1,0 +1,33 @@
+[bsv]
+tab=test
+names = q w e
+data <<<
+	aa 2 3
+	bb 6 7
+
+[let]
+intab = test
+outtab = wymiar
+
+[sql]
+let tabsql = select sql from sqlite_master where name = '$intab'
+
+[python]
+code <<<
+	name = '$intab'
+	newname = '$outtab'
+	sql = frame.vars['tabsql']
+	p = sql.find('(')
+	sql = sql[:p] + '(id integer primary key autoincrement,' + sql[p+1:]
+	p = sql.find(name)
+	sql = sql[:p] + newname + sql[p+len(name):]
+	frame.vars['tabsql'] = sql
+
+[sql]
+code = $tabsql
+
+[sql]
+code = insert into $outtab select null,* from $intab
+
+[sql]
+print = select * from wymiar

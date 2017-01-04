@@ -1,0 +1,15 @@
+[csv]
+tab = digits
+iter = sample
+dlm = ;
+names = a b c
+data <<<
+	1;2;3
+	4;5;6
+
+[python]
+debug = sample
+
+[sql]
+print = select a,b,c from digits
+

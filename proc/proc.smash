@@ -1,0 +1,3 @@
+[python]
+code <<<
+	dyn_proc['$name'] = get('smash','')

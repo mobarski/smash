@@ -1,0 +1,14 @@
+[let]
+x = 42
+
+[python]
+code <<<
+	print("$x")
+	print('frame',vars(frame))
+	print('parent',vars(frame.parent))
+let y = 123
+debug = x y
+print = get('x')
+print = get('y')
+let x = 42
+print = get('x')

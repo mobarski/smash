@@ -1,0 +1,15 @@
+[python]
+code <<<
+	# TODO option to disable autoinit
+	from smash import run_autoinit
+	import os,sys
+	todo = []
+	for key,val in frame.args_iter():
+		if key in ['module','mod']:
+			path = os.path.join(sys.path[0],'proc',val)
+			todo.append(path)
+		elif key in ['dir','path']:
+			todo.append(val)
+	for path in todo:
+		frame.path.insert(0, path)
+		run_autoinit(path)

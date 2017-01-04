@@ -1,0 +1,27 @@
+[python]
+code <<<
+	out = {}
+	
+	outpath = frame.arg('outpath')
+	outvar = frame.arg('outvar')
+	tmpl = frame.arg('template')
+	
+	text = frame.render(tmpl)
+	if outvar:
+		frame.vars[outvar] = text
+	if outpath:
+		open(outpath,'w').write(text)
+	else:
+		print(text)
+	
+	outstr = text
+	
+	# COPY TO CLIPBOARD
+	clip = get_flag('clip')
+	if clip:
+		from subprocess import Popen,PIPE
+		try:
+			proc=Popen(["C:\Windows\System32\clip.exe"],stdin=PIPE,shell=True)
+			proc.communicate(outstr.encode())
+		except:
+			print('WARNING: copy to clipboard currently works only on Windows')

@@ -1,0 +1,30 @@
+[re]
+data <<<
+	Bill Inmon, Ralph Kimbal, Daniel  Linstedt,
+	  Laurence Corr,        Nathan    Marz,
+	  ,,,,,,,
+	Lars Ronnback, 
+	Josh  Wills
+split = ,
+select = .
+split = \s+
+tab = authors
+names = firstname surname
+
+[sql]
+print = select * from authors
+
+
+
+[re]
+data <<<
+	Bill Inmon, Ralph Kimbal, Daniel  Linstedt,
+	  Laurence Corr,        Nathan    Marz,
+	  ,,,,,,,
+	Lars Ronnback, 
+	Josh  Wills
+find = (\w+) \s+ (\w+) 
+iter = authors
+
+[python]
+pprint = get('authors')

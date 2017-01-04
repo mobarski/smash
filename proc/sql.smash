@@ -1,0 +1,47 @@
+[python]
+code <<<
+	import dbpool
+	import bsv
+	import re
+	
+	db = dbpool.connect(frame.arg('db'))
+	sql = frame.arg('code','')
+
+	def md5hex(text):
+		import hashlib
+		try:
+			return hashlib.md5(text.encode()).hexdigest()
+		except:
+			return None
+	
+	db.create_function("md5", 1, md5hex)
+	
+	
+	if sql:
+		db.executescript(sql)
+		db.commit()
+
+	# handle let
+	for k,v in frame.args_iter('let ',startswith=True):
+		m = re.findall('let\s+(\w+)',k)
+		if m:
+			vname = m[0]
+			c = db.execute(v)
+			vval = next(c)[0]
+			#print('TODO let',vname,vval)
+			frame.vars[vname] = vval
+
+	# handle iterators
+	for k,v in frame.args_iter('iter ',startswith=True):
+		m = re.findall('iter\s+(\w+)',k)
+		if m:
+			vname = m[0]
+			c = db.execute(v)
+			vval = list(c)
+			#print('TODO iter col names',vname,vval)
+			frame.vars[vname] = vval
+
+	# handle print
+	for k,v in frame.args_iter('print'):
+		for row in db.execute(v):
+			print(bsv.format(row))

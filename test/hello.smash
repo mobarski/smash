@@ -1,0 +1,6 @@
+[let]
+name = laurence
+
+[python]
+print = "Hello $name!"
+print = "Hello "+frame.get('name')

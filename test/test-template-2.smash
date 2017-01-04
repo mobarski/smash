@@ -1,0 +1,10 @@
+[let]
+x = 42
+y = 123
+
+[template]
+xxoutpath = test.txt
+template <<<
+	xxx = $x $x $x
+	yyy = $y $y
+	zzz = $z

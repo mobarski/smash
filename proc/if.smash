@@ -1,0 +1,11 @@
+[python]
+code <<<
+	print(dir())
+	cnd = eval(frame.arg('if'))
+	if cnd:
+		code = frame.arg('code')
+		sections = parse.sections(code)
+		print('before',frame,args)
+		steps = [(n,s,dir()) for n,s in enumerate(sections)] # WTF
+		print('after',frame,args)
+		print(steps) # TODO

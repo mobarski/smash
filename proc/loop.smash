@@ -1,0 +1,12 @@
+[python]
+code <<<
+	from smash import run_frame
+	
+	it = get(get('iter'))
+	names = get('names', split='\s+')
+	proc_name = get('proc')
+	
+	for i,values in enumerate(it):
+		proc_args = list(zip(names,values))
+		f = frame.child(i+1, proc_name, proc_args, line=0, filename="__TODO__")
+		run_frame(f)

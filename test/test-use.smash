@@ -1,0 +1,11 @@
+[use]
+dir = $smash/test
+[hello]
+
+[use]
+dir = .
+[hello]
+
+[use]
+module = ../test
+[hello]
