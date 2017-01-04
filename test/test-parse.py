@@ -45,6 +45,10 @@ f <<<
 
 in2 = """
 [aaa]
+x = 1
+y <<<
+	2
+z < test-parse.py
 [bbb]
 [ccc]
 """
@@ -54,11 +58,11 @@ sys.path.append('..')
 from parse import *
 
 if __name__=="__main__":
-	if 1:
+	if 0:
 		pprint(section_line_numbers(in1))
 	if 0:
 		pprint(list(enumerate(sections(in1))))
-	if 0:
-		for s in sections(in1):
+	if 1:
+		for s in sections(in2):
 			print(name(s))
 			pprint(args(s))
