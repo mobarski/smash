@@ -53,9 +53,10 @@ class Frame:
 				yield k,self.render(v)
 				
 	def arg(self,name,default='',alt=''):
-		alternatives = alt.split(' ')
+		alternatives = re.split('\s+',alt.strip())
+		alternatives += [self.name+'.'+a for a in alternatives]
 		for k,v in self.args:
-			if k==name or k in alternatives:
+			if k==name or k==self.name+'.'+name or k in alternatives:
 				if type(v) is str:
 					return self.render(v)
 				else:

@@ -94,7 +94,7 @@ let cnt = select count(*) from stg2
 
 ### code evolution
 
-It's easy to evolve "quick, one-time" solutions into reusable solutions and than into reusable, data-driven solutions.
+It's easy to evolve "quick, one-time" scripts into reusable solutions and then into data-driven solutions.
 
 Example
 

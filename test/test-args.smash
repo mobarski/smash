@@ -1,0 +1,9 @@
+[proc]
+name = hello
+smash <<<
+	[python]
+	code = print("hello "+get('name','stranger'))
+
+[hello]
+name = Ralph
+python.name = Laurence
