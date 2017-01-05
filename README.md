@@ -460,6 +460,8 @@ Execute operating system command.
 Arguments:
 > **cmd** - system command with arguments
 
+> **input** - standard input for the command
+
 Example:
 ~~~~
 [cmd]

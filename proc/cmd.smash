@@ -1,11 +1,21 @@
 [python]
 code <<<
+	# TODO FIXME przekazywanie sciezek w zmiennych wycina \
+	# TODO tworzenie plikow tymczasowych
 	# TODO return code
 	# TODO capture output
 	# TODO sync / async
 	# TODO wait for async
-	import os
+	from subprocess import Popen,PIPE
+	import shlex
+	import sys
 	for k,v in frame.args:
 		if k=='cmd':
 			cmd = frame.render(v)
-			os.system(cmd)
+			stdin = get('input','') # TODO separate input for 
+			p = Popen(shlex.split(cmd), stdin=PIPE,stdout=PIPE,stderr=PIPE, shell=True)
+			pid = p.pid # TODO print/store PID
+			out,err=p.communicate(stdin.encode())
+			rc = p.returncode # TODO print/store PID
+			print(out.decode())
+			print(err.decode(),file=sys.stderr)
