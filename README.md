@@ -90,6 +90,56 @@ let cnt = select count(*) from stg2
 | re | [link](#re) | import regular expression filtered text |
 | cmd | [link](#cmd) | execute operating system command |
 
+## why use SMASH?
+
+### code evolution
+
+It's easy to evolve "quick, one-time" solutions into reusable solutions and than into reusable, data-driven solutions.
+
+Example
+
+Quick, one-time solution (thanksmsg.smash):
+~~~~
+[let]
+name = Ralph
+surname = Kimball
+signature = Maciek
+
+[template]
+template <<<
+	Hello $name $surname!
+	I enjoyed your book very much.
+	
+	regards,
+	$signature
+~~~~
+
+Reuse of one-time solution (thanks.smash):
+~~~~
+[thanksmsg]
+name = Bill
+surname = Inmon
+template.outvar = msg
+
+[mail]
+to = $mail
+subject = Thank You
+body = $msg
+~~~~
+
+Data-driven solution reusing previous solutions:
+~~~~
+[sql]
+iter ty <<<
+	select firstname,surname,email,user
+	from thanks
+	where sent=0
+
+[loop]
+iter = ty
+proc = thanks
+names = name surname mail signature
+~~~~
 
 ## SMASH Library Reference
 
