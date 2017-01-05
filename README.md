@@ -469,3 +469,13 @@ cmd = echo CONNECTING TO $host
 cmd = $ssh $host $auth $cmd
 ~~~~
 
+Example:
+~~~~
+[cmd]
+cmd = echo CONNECTING TO $host
+input <<<
+	cd /proc
+	ls
+	exit
+cmd = $ssh $host $auth
+~~~~
