@@ -1,0 +1,8 @@
+[use]
+dir = .
+
+[test-skip]
+#python.skip = true
+#python.run = false
+python.force = true
+

@@ -90,6 +90,17 @@ let cnt = select count(*) from stg2
 | re | [link](#re) | import regular expression filtered text |
 | cmd | [link](#cmd) | execute operating system command |
 
+## procedure modifiers
+
+Modifiers are special procedure arguments that are available in every procedure
+
+| modifier | reference | short description |
+| --- | --- | --- |
+| skip | | when argument value is true the procedure won't be executed |
+| run | | when argument value is false the procedure won't be executed |
+| force | | when argument value is true the procedure will be executed ignoring skip and run modifiers |
+
+
 ## why use SMASH?
 
 ### code evolution
@@ -140,6 +151,12 @@ iter = ty
 proc = thanks
 names = name surname mail signature
 ~~~~
+
+
+### easy to learn
+
+The syntax is trivial. It's very easy to introduce SMASH to other people working on a project. Usually after just one 2-hour long training the analysts are ready to use SMASH.
+
 
 ## SMASH Library Reference
 
@@ -514,6 +531,10 @@ Arguments:
 
 Example:
 ~~~~
+[let]
+ssh = plink.exe
+cmd = -m script.sh
+
 [cmd]
 cmd = echo CONNECTING TO $host
 cmd = $ssh $host $auth $cmd

@@ -53,15 +53,16 @@ class Frame:
 				yield k,self.render(v)
 				
 	def arg(self,name,default='',alt=''):
+		SEP = '.' # proc-arg separator
 		alternatives = re.split('\s+',alt.strip())
-		alternatives += [self.name+'.'+a for a in alternatives]
+		alternatives += [self.name+SEP+a for a in alternatives]
 		for k,v in self.args:
-			if k==name or k==self.name+'.'+name or k in alternatives:
+			if k==name or k==self.name+SEP+name or k in alternatives:
 				if type(v) is str:
 					return self.render(v)
 				else:
 					return v
-		v = self.defaults.get(self.parent.name+'.'+name,default)
+		v = self.defaults.get(self.parent.name+SEP+name,default)
 		try:
 			return self.render(v)
 		except:

@@ -1,0 +1,38 @@
+[let]
+is_true = yes
+is_false = no
+
+[python]
+run = true
+code = print("this should be visible")
+[python]
+run = false
+code = print("this should NOT be visible")
+
+[python]
+run = $is_true
+code = print("this should be visible")
+[python]
+run = $is_false
+code = print("this should NOT be visible")
+
+[python]
+skip = false
+code = print("this should be visible")
+[python]
+skip = true
+code = print("this should NOT be visible")
+
+[python]
+skip = $is_false
+code = print("this should be visible")
+[python]
+skip = $is_true
+code = print("this should NOT be visible")
+
+[python]
+run = true
+skip = false
+skip = true
+code = print("this should NOT be visible")
+

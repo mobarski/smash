@@ -7,6 +7,7 @@ import os
 import parse
 from frame import Frame
 import proc
+import mods
 
 def run_path(path):
 	code = open(path,'r').read()
@@ -29,7 +30,8 @@ def run_steps(steps):
 	while todo:
 		section,frame = todo.popleft()
 		name = parse.name(section)
-		# TODO handle mods
+		if not mods.should_run(section,frame):
+			continue # TODO log info
 		if name=='python':
 			proc.python(section,frame)
 		elif name=='none':
@@ -38,10 +40,12 @@ def run_steps(steps):
 			steps = proc.other(name,section,frame)
 			todo.extendleft(reversed(steps))
 
+# TODO refactor with run_steps
 def run_frame(frame):
 	section = ''
 	name = frame.name
-	# TODO handle mods
+	if not mods.should_run(section,frame):
+		return # TODO log info
 	if name=='python':
 		proc.python(section,frame,frame.args)
 	elif name=='none':
