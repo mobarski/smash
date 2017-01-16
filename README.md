@@ -98,7 +98,8 @@ Modifiers are special procedure arguments that are available in every procedure
 | --- | --- | --- |
 | skip | | when true the procedure won't be executed |
 | run | | when false the procedure won't be executed |
-| force | | when true the procedure will ignore skip and run modifiers |
+| when | | when empty the procedure won't be executed |
+| force | | when true the procedure will ignore skip,run and when modifiers |
 
 
 ## why use SMASH?

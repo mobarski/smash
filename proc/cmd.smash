@@ -17,5 +17,6 @@ code <<<
 			pid = p.pid # TODO print/store PID
 			out,err=p.communicate(stdin.encode())
 			rc = p.returncode # TODO print/store PID
-			print(out.decode())
-			print(err.decode(),file=sys.stderr)
+			print(out.decode(errors='ignore')) # TODO change ingore
+			print(err.decode(errors='ignore'),file=sys.stderr) # TODO change ingore
+
