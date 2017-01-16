@@ -21,7 +21,6 @@ def render2(template,env):
 	# conditional blocks
 	cre = '[$]start-(\w+) (.*?) [$]end-\\1'
 	conditionals = re.findall(cre,out,re.X)
-	print(conditionals)
 	def mapper(x):
 		name = x.group(1)
 		text = x.group(2)
