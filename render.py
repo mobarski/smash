@@ -5,17 +5,33 @@ def render(template,env):
 
 ### NEW ### EXPERIMENTAL
 import re
-from util import join
+from util import join, flag
 
-# TODO $$x  ${x}  ${x|y|z}
+# TODO  $$x  ${x|y|z}???
 def render2(template,env):
-	varnames = re.findall('[$](\w+)',template)
-	vre = join(varnames,"|","[$]{0}")
+	# variables
+	varnames = re.findall('[$]{?(\w+)}?',template)
+	vre = join(set(varnames),"|","(?<![$])[$]{{?{0}}}?")
 	def mapper(x):
 		s = x.group()
-		return str(env.get(s[1:],s))
-	return re.sub(vre,mapper,template)
+		name = s.replace('$','').replace('{','').replace('}','') # TODO FIX performance
+		return str(env.get(name,s))
+	out = re.sub(vre,mapper,template)
+	
+	# conditional blocks
+	cre = '[$]start-(\w+) (.*?) [$]end-\\1'
+	conditionals = re.findall(cre,out,re.X)
+	print(conditionals)
+	def mapper(x):
+		name = x.group(1)
+		text = x.group(2)
+		return text if flag(env.get(name,'yes')) else ''
+	out = re.sub(cre,mapper,out,re.X)
+	return out
 
 if __name__=="__main__":
-	out = render("to jest $aa test $bb mechanizmu $cc ok",dict(aa=12,bb=34))
+	template = "to jest $aa test $bb mechanizmu $cc ok ${aa} $$bb $start-zz :) $end-zz"
+	out = render(template,dict(aa=12,bb=34))
+	out2 = render2(template,dict(aa=12,bb=34,zz=1))
 	print(out)
+	print(out2)
