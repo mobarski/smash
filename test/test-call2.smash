@@ -1,0 +1,5 @@
+[use]
+dir = .
+
+[test-call]
+name = Ralph

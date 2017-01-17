@@ -79,6 +79,8 @@ let cnt = select count(*) from stg2
 | default | [link](#default) | assign default values to procedure arguments |
 | proc | [link](#proc) | create temporary, dynamic procedure |
 | loop | [link](#loop) | execute procedure in a loop |
+| call | [link](#call) | call procedure with parent procedure arguments |
+
 
 ## other built-in procedures
 
@@ -362,6 +364,19 @@ iter authors = select firstname,surname from authors
 proc = hello
 iter = authors
 names = name surname
+~~~~
+
+
+### call
+
+Call procedure with parent procedure arguments. Usefull for creating procedure aliases.
+
+Arguments:
+> **proc** - name of the procedure to call
+
+
+Example:
+~~~~
 ~~~~
 
 

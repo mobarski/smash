@@ -1,0 +1,8 @@
+[python]
+code <<<
+	from smash import run_frame
+	
+	# TODO allow overloading of parameters
+	proc_name = get('proc')
+	f = frame.child(1, proc_name, frame.parent.args, line=0, filename="__TODO__")
+	run_frame(f)

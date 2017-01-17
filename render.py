@@ -36,6 +36,6 @@ render = render2
 if __name__=="__main__":
 	template = "$$ to jest $aa test $bb mechanizmu $cc ok ${aa} $$bb $start-zz :) $end-zz"
 	out = render1(template,dict(aa=12,bb=34))
-	out2 = render2(template,dict(aa=12,bb=34,zz=1))
+	out2 = render2(template,dict(aa=12,bb=34,zz=0))
 	print(out)
 	print(out2)
