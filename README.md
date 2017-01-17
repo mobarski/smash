@@ -159,6 +159,44 @@ names = name surname mail signature
 The syntax is trivial. It's very easy to introduce SMASH to other people working on a project. Usually after just one 2-hour long training the analysts are ready to use SMASH.
 
 
+
+## SMASH Macro Language
+
+SMASH uses simple macro language with only two operations:
+* variable substitution
+* conditional statement 
+
+### Variable Substitution
+
+Text prefixed with a dolar sign will be macro-expanded.
+Macro variable name can be surrounded with curly braces to allow concatenation.
+Double dollar sign can be used to escape macro expansion.
+
+~~~~
+[let]
+name = Bill
+greeting = Helllo
+text = $greeting ${name}!
+~~~~
+
+### Conditional Macro Statement
+
+SMASH allows to omit named section of text based on a macro variable value.
+The secion starts with "$start-macrovariablename" and ends with "$end-macrovariablename".
+
+Example:
+~~~~
+[let]
+intro = yes
+text <<<
+	$start-intro
+	A long time ago
+	in a galaxy
+	far, far away...
+	$end-intro
+	No one expects the Spanish Inquisition...
+~~~~
+
 ## SMASH Library Reference
 
 
