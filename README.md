@@ -184,18 +184,20 @@ text = $greeting ${name}!
 ### Conditional Macro Statement
 
 SMASH allows to omit named section of text based on a macro variable value.
-The secion starts with "$start-macrovariablename" and ends with "$end-macrovariablename".
+The secion starts with "#start-macrovariablename" and ends with "#end-macrovariablename".
 
 Example:
 ~~~~
 [let]
 intro = yes
-text <<<
-	$start-intro
+
+[template]
+template <<<
+	#start-intro
 	A long time ago
 	in a galaxy
 	far, far away...
-	$end-intro
+	#end-intro
 	No one expects the Spanish Inquisition...
 ~~~~
 

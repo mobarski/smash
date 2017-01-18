@@ -1,0 +1,37 @@
+[let]
+intro = no
+outro = yes
+
+[template]
+template <<<
+
+	START
+	
+	#start-intro
+	THIS
+	IS
+	INTRO
+	#end-intro
+	
+	THE
+	MAIN
+	PART
+	
+	#start-outro
+	OUTRO
+	BODY
+	#end-outro
+	
+	END
+
+[let]
+intro = yes
+
+[template]
+template <<<
+	#start-intro
+	A long time ago
+	in a galaxy
+	far, far away...
+	#end-intro
+	No one expects the Spanish Inquisition...
