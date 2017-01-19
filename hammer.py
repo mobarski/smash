@@ -4,6 +4,10 @@ import itertools
 import random
 import bisect
 import heapq
+import time
+import sys
+import array
+import math
 
 WORDQUOTE = "'"
 
@@ -18,19 +22,20 @@ def fun_substr(s,a,b):
 	else: b=a+b
 	return s[a:b]
 
-def stack_eval(code,data=[],env={}):
+def stack_eval(code,stack=[],env={}):
 	quote_mode = False 
-	
-	if hasattr(data,'lower'):
-		stack = [data]
-	else:
-		stack = data
-	print(stack)
 	s = stack
 
 	tokens = re.split('\s+',code.strip())
 	while tokens:
-		op = tokens.pop(0) # TODO if tokens[0] is iter then pop from that iter
+		if hasattr(tokens[0],'next') or hasattr(tokens[0],'__next__'): 
+			try:
+				op = next(tokens[0])
+			except StopIteration:
+				tokens.pop(0)
+				continue
+		else:
+			op = tokens.pop(0)
 		
 		if quote_mode:
 			if op==']':	quote_mode=False
@@ -46,6 +51,7 @@ def stack_eval(code,data=[],env={}):
 		elif op=='sub':		s[-2]=s[-2]-s[-1]; s.pop()
 		elif op=='pow':		s[-2]=s[-2]**s[-1]; s.pop()
 		elif op=='mod':		s[-2]=s[-2]%s[-1]; s.pop()
+		elif op=='divmod':	s[-2],s[-1]=divmod(s[-2],s[-1])
 		elif op=='lshift':	s[-2]=s[-2]<<s[-1]; s.pop()
 		elif op=='rshift':	s[-2]=s[-2]>>s[-1]; s.pop()
 		elif op=='and':		s[-2]=s[-2]&s[-1]; s.pop()
@@ -63,8 +69,12 @@ def stack_eval(code,data=[],env={}):
 		elif op=='bool':	s[-1]=bool(s[-1])
 		elif op=='not':		s[-1]=not s[-1]
 		
-		# string
+		# string / seq
 		elif op=='substr':	s[-3]=fun_substr(s[-3],s[-2],s[-1]); s.pop(); s.pop()
+		elif op=='replace':	s[-3]=s[-3].replace(s[-2],s[-1]); s.pop(); s.pop() # TODO kolejnosc?
+		elif op=='ljust':	s[-2]=s[-2].ljust(s[-1]); s.pop();
+		elif op=='rjust':	s[-2]=s[-2].rjust(s[-1]); s.pop();
+		elif op=='center':	s[-2]=s[-2].center(s[-1]); s.pop();
 		elif op=='strip':	s[-1]=s[-1].strip()
 		elif op=='lstrip':	s[-1]=s[-1].lstrip()
 		elif op=='rstrip':	s[-1]=s[-1].rstrip()
@@ -73,12 +83,22 @@ def stack_eval(code,data=[],env={}):
 		elif op=='len':		s+=[len(s[-1])] # ALT s[-1]=
 		elif op=='print':	print(s.pop())
 		elif op=='echo':	print(s[-1])
+		elif op=='min':		s[-1]=min(s[-1])
+		elif op=='max':		s[-1]=max(s[-1])
+		elif op=='min2':	s[-2]=min(s[-2],s[-1]); s.pop()
+		elif op=='max2':	s[-2]=max(s[-2],s[-1]); s.pop()
 		
 		# re
 		elif op=='split':	s[-2]=re.split(s[-1],s[-2]); s.pop()
 		elif op=='findall':	s[-2]=re.findall(s[-1],s[-2]); s.pop()
 		elif op=='finditer':	s[-2]=re.finditer(s[-1],s[-2]); s.pop()
 		# TODO search match fullmatch sub subn
+		
+		# textwrap
+		elif op=='wrap':	s[-2]=textwrap.wrap(s[-2],s[-1]); s.pop()
+		elif op=='fill':	s[-2]=textwrap.fill(s[-2],s[-1]); s.pop()
+		elif op=='dedent':	s[-1]=textwrap.dedent(s[-1])
+		elif op=='indent':	s[-2]=textwrap.indent(s[-2],s[-1]); s.pop()
 		
 		# list
 		elif op=='slice':	s[-3]=s[-3][s[-2]:s[-1]]; s.pop(); s.pop()
@@ -100,6 +120,9 @@ def stack_eval(code,data=[],env={}):
 		elif op=='set':		s[-1]=set(s[-1])
 		elif op=='str':		s[-1]=str(s[-1])
 		elif op=='tuple':	s[-1]=tuple(s[-1])
+		elif op=='float':	s[-1]=float(s[-1])
+		elif op=='int':		s[-1]=int(s[-1])
+		elif op=='nlist':	n=s.pop(); s[-n]=s[-n:]; del s[-n+1:]
 		
 		# random
 		elif op=='randint':	s[-2]=random.randint(s[-2],s[-1]); s.pop()
@@ -125,26 +148,80 @@ def stack_eval(code,data=[],env={}):
 		elif op=='heappop':		s[-1]=heapq.heappop(s[-1])
 		#elif op=='merge':		s[-1]=heapq.merge(s[-1])
 		
+		# time
+		elif op=='time':		s+=[time.time()]
+		elif op=='clock':		s+=[time.clock()]
+		elif op=='sleep':		time.sleep(s[-1]); s.pop()
+		
+		# TODO struct
+		# TODO array
+		# TODO pickle
+		# TODO map, reduce, starmap
+		# TODO if def
+		
+		# elif op=='map':		i,f=s[-2:];  # TODO
+		
+		# sys
+		elif op=='exit':	sys.exit(s[-1])
+		elif op=='argv':	s+=[sys.argv]
+		
+		# math
+		elif op=='pi':		s+=[math.pi]
+		elif op=='e':		s+=[math.e]
+		elif op=='ceil':	s[-1]=math.ceil(s[-1])
+		elif op=='floor':	s[-1]=math.floor(s[-1])
+		elif op=='exp':		s[-1]=math.exp(s[-1])
+		elif op=='fabs':	s[-1]=math.fabs(s[-1])
+		elif op=='fsum':	s[-1]=math.fsum(s[-1])
+		elif op=='degrees':	s[-1]=math.degrees(s[-1])
+		elif op=='radians':	s[-1]=math.radians(s[-1])
+		elif op=='atan2':	s[-2]=math.atan2(s[-2],s[-1]); s.pop()
+		elif op=='log':		s[-2]=math.log(s[-2],s[-1]); s.pop()
+		elif op=='sin':		s[-1]=math.sin(s[-1])
+		elif op=='cos':		s[-1]=math.cos(s[-1])
+		elif op=='tan':		s[-1]=math.tan(s[-1])
+		elif op=='asin':	s[-1]=math.asin(s[-1])
+		elif op=='acos':	s[-1]=math.acos(s[-1])
+		elif op=='atan':	s[-1]=math.atan(s[-1])
+		
+		# array
+		#elif op=='array':	s[-2]=array.array(s[-1],s[-2]); s.pop()
+		
+		# other
+		#elif op=='input':	s[-1]=input(s[-1])
+		elif op=='repr':	s[-1]=repr(s[-1])
 		
 		# stack language
+		elif op.startswith(WORDQUOTE): s+=[op[len(WORDQUOTE):]]
 		elif op=='[':		s+=[list()]; quote_mode=True
+		elif op=='depth':	s+=[len(s)]
 		elif op=='swap':	s[-2],s[-1]=s[-1],s[-2]
 		elif op=='dup':		s+=[s[-1]]
 		elif op=='drop':	s.pop()
 		elif op=='drop2':	s.pop(); s.pop()
 		elif op=='over':	s+=[s[-2]]
+		elif op=='pick':	s[-1]=s[-s[-1]-1]
+		elif op=='nip':		s[-2]=s[-1]; s.pop()
 		elif op=='defer':	s+=[tokens.pop(0)] # TODO remove?
 		elif op=='run':		tokens[0:0]=s.pop()
 		elif op=='store':	env[s[-1]]=s[-2]; s.pop();s.pop() # TODO different name
 		elif op in env:		s+=[env[op]]
-		elif op.startswith(WORDQUOTE): s+=[op[len(WORDQUOTE):]]
 		else:				s+=[op]
-	print(stack,env)
+	return stack
+	
+env = {}
+env['white']='\s+'
+env['comma']=','
+env['dot']='.'
+env['space']=' '
+env['empty']=''
+env['none']=None
+env['true']=True
+env['false']=False
+env['nan']=float('nan')
+env['inf']=float('inf')
 
-def_env = {'white':'\s+', 'comma':',', 'space':' ', 'empty':'', 'none':None, 'true':True, 'false':False}
-stack_eval('abc 2 combinations list','block\tof  data', env=def_env)
-
+code = """
+42 print
 """
-[ 1 2 3 4 5 6 ] map
-
-"""
+stack_eval(code, env=env)
