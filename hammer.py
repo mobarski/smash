@@ -8,12 +8,13 @@ import time
 import sys
 import array
 import math
+import pprint
 
 WORDQUOTE = "'"
 
 def as_int(s):
 	try: return int(s)
-	except ValueError: return None
+	except: return None
 
 def fun_substr(s,a,b):
 	if a==0: a=1
@@ -26,7 +27,7 @@ def stack_eval(code,stack=[],env={}):
 	quote_mode = False 
 	s = stack
 
-	tokens = re.split('\s+',code.strip())
+	tokens = re.split('\s+',code.strip()) # TODO quotes
 	while tokens:
 		if hasattr(tokens[0],'next') or hasattr(tokens[0],'__next__'): 
 			try:
@@ -41,6 +42,8 @@ def stack_eval(code,stack=[],env={}):
 			if op==']':	quote_mode=False
 			else:			s[-1]+=[op]
 			continue
+		
+		# TODO change into dict[op] -> fun
 		
 		# operators
 		v = as_int(op)
@@ -82,6 +85,7 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='lower':	s[-1]=s[-1].lower()
 		elif op=='len':		s+=[len(s[-1])] # ALT s[-1]=
 		elif op=='print':	print(s.pop())
+		elif op=='pprint':	pprint.pprint(s.pop())
 		elif op=='echo':	print(s[-1])
 		elif op=='min':		s[-1]=min(s[-1])
 		elif op=='max':		s[-1]=max(s[-1])
@@ -114,6 +118,9 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='product':		s[-2]=itertools.product(s[-2],repeat=s[-1]); s.pop()
 		elif op=='permutations':	s[-2]=itertools.permutations(s[-2],r=s[-1]); s.pop()
 		elif op=='combinations':	s[-2]=itertools.combinations(s[-2],r=s[-1]); s.pop()
+		elif op=='range':		s[-1]=range(s[-1])
+		elif op=='range2':		s[-2]=range(s[-2],s[-1]); s.pop()
+		elif op=='range3':		s[-3]=range(s[-3],s[-2],s[-1]); s.pop();s.pop()
 		
 		# types
 		elif op=='list':	s[-1]=list(s[-1])
@@ -122,6 +129,7 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='tuple':	s[-1]=tuple(s[-1])
 		elif op=='float':	s[-1]=float(s[-1])
 		elif op=='int':		s[-1]=int(s[-1])
+		elif op=='iter':	s[-1]=iter(s[-1])
 		elif op=='nlist':	n=s.pop(); s[-n]=s[-n:]; del s[-n+1:]
 		
 		# random
@@ -156,10 +164,10 @@ def stack_eval(code,stack=[],env={}):
 		# TODO struct
 		# TODO array
 		# TODO pickle
-		# TODO map, reduce, starmap
 		# TODO if def
 		
-		# elif op=='map':		i,f=s[-2:];  # TODO
+		elif op=='map':		a,b=s[-2:]; s[-2]=itertools.chain.from_iterable(map(lambda x:itertools.chain([x],b),a)); s.pop()
+		elif op=='reduce':	tokens[0:0]=['unrot','map']
 		
 		# sys
 		elif op=='exit':	sys.exit(s[-1])
@@ -196,6 +204,8 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='[':		s+=[list()]; quote_mode=True
 		elif op=='depth':	s+=[len(s)]
 		elif op=='swap':	s[-2],s[-1]=s[-1],s[-2]
+		elif op=='rot':		s[-3],s[-2],s[-1]=s[-2],s[-1],s[-3]
+		elif op=='unrot':	s[-3],s[-2],s[-1]=s[-1],s[-3],s[-2]
 		elif op=='dup':		s+=[s[-1]]
 		elif op=='drop':	s.pop()
 		elif op=='drop2':	s.pop(); s.pop()
@@ -203,8 +213,9 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='pick':	s[-1]=s[-s[-1]-1]
 		elif op=='nip':		s[-2]=s[-1]; s.pop()
 		elif op=='defer':	s+=[tokens.pop(0)] # TODO remove?
-		elif op=='run':		tokens[0:0]=s.pop()
+		elif op=='run':		tokens.insert(0,iter(s.pop()))
 		elif op=='store':	env[s[-1]]=s[-2]; s.pop();s.pop() # TODO different name
+		elif op=='stack':	s+=[s] # ALT s.copy()
 		elif op in env:		s+=[env[op]]
 		else:				s+=[op]
 	return stack
@@ -222,6 +233,6 @@ env['nan']=float('nan')
 env['inf']=float('inf')
 
 code = """
-42 print
+1 2 3 4 stack pprint
 """
 stack_eval(code, env=env)
