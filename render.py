@@ -1,9 +1,12 @@
 import string
 
+### OLD RENDERER
+
 def render1(template,env):
 	return string.Template(template).safe_substitute(env)
 
-### NEW ### EXPERIMENTAL
+### CURRENT RENDERER 
+
 import re
 from util import join, flag
 
@@ -28,6 +31,8 @@ def render2(template,env):
 		return text if flag(env.get(name,'yes')) else ''
 	out = re.sub(cre,mapper,out,re.X)
 	return out
+
+### EXPERIMENTAL RENDERER
 
 def render3(template,env):
 	out = template
