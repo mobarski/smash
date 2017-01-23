@@ -107,6 +107,7 @@ def stack_eval(code,stack=[],env={}):
 		# list
 		elif op=='slice':	s[-3]=s[-3][s[-2]:s[-1]]; s.pop(); s.pop()
 		elif op=='join':	s[-2]=s[-1].join(s[-2]); s.pop()
+		elif op=='append':	s[-2].append(s[-1]); s.pop()
 		elif op=='zip':		s[-2]=zip(s[-2],s[-1]); s.pop() # ALT s[-1],s[-2]
 		elif op=='head':	head,rest=s[-1][0],s[-1][1:]; s[-1]=rest; s+=[head]
 		elif op=='get':		s[-1]=s[-2][s[-1]] # ALT s[-2]= # TODO different name AT INDEX KEY TH NTH
@@ -166,8 +167,9 @@ def stack_eval(code,stack=[],env={}):
 		# TODO pickle
 		# TODO if def
 		
-		elif op=='map':		a,b=s[-2:]; s[-2]=itertools.chain.from_iterable(map(lambda x:itertools.chain([x],b),a)); s.pop()
-		elif op=='reduce':	tokens[0:0]=['unrot','map']
+		elif op=='map':		a,b=s[-2:]; s[-2]=[]; s.pop(); tokens.insert(0,itertools.chain.from_iterable(map(lambda x:itertools.chain([x],b,['append']),a)));
+		elif op=='reduce':	a,b=s[-2:]; s[-2]=itertools.chain.from_iterable(map(lambda x:itertools.chain([x],b),a)); s.pop()
+		#elif op=='reduce':	tokens[0:0]=['unrot','map']
 		
 		# sys
 		elif op=='exit':	sys.exit(s[-1])
@@ -216,6 +218,7 @@ def stack_eval(code,stack=[],env={}):
 		elif op=='run':		tokens.insert(0,iter(s.pop()))
 		elif op=='store':	env[s[-1]]=s[-2]; s.pop();s.pop() # TODO different name
 		elif op=='stack':	s+=[s] # ALT s.copy()
+		elif op=='curry':	s[-2]=[s[-2]]+s[-1]; s.pop() # TODO rename
 		elif op in env:		s+=[env[op]]
 		else:				s+=[op]
 	return stack
@@ -233,6 +236,6 @@ env['nan']=float('nan')
 env['inf']=float('inf')
 
 code = """
-1 2 3 4 stack pprint
+[ 1 2 3 4 5 ] 0 swap [ 2 pow add ] reduce list print
 """
 stack_eval(code, env=env)
