@@ -14,8 +14,8 @@ __encode = base64.b32encode
 __decode = base64.b32decode
 
 def get_pad_path():
-	# TODO private file in user directory
-	return "otp-secret.dat"
+	d=os.environ.get('appdata','') or os.environ.get('HOME','') or '.'
+	return os.path.join(d,".otp-secret.bin")
 
 def get_pad(length,seed=0):
 	try:
@@ -45,6 +45,7 @@ def init(length=4096):
 	p = os.urandom(length)
 	f = open(get_pad_path(),'wb')
 	f.write(p)
+	# TODO make file private
 
 def encode(s):
 	raw_seed= os.urandom(4)
@@ -62,7 +63,6 @@ def decode(s):
 	return struct.pack(len(x)*'B',*x).decode()
 
 if __name__=="__main__":
-	#init_pad()
 	for a in ('test','takt'):
 		b=encode(a)
 		c=decode(b)
