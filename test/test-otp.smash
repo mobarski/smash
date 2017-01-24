@@ -1,0 +1,12 @@
+[otp-encode]
+x=test
+y=zzz
+z= test   
+
+[otp-decode]
+x = AZNQNUO5V64Y2xxx
+y = LVLYTOCNUCQAxxxx
+z = DYRSRM6ZNFPMKxxx
+
+[python]
+debug=x y z

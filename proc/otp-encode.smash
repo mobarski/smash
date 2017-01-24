@@ -1,0 +1,7 @@
+[python]
+code <<<
+	import otp
+	print("[otp-decode]")
+	for k,v in frame.args:
+		x = otp.encode(v)
+		print("{0} = {1}".format(k,x))

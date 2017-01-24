@@ -3,11 +3,13 @@ import sys
 import struct
 import random
 import base64
+import array
 
 """
 OneTimePad-Like encoding / decoding
 """
 
+# TODO turn into object
 # TODO optimize
 
 __encode = base64.b32encode
@@ -17,29 +19,29 @@ def get_pad_path():
 	d=os.environ.get('appdata','') or os.environ.get('HOME','') or '.'
 	return os.path.join(d,".otp-secret.bin")
 
-def get_pad(length,seed=0):
+def get_pad():
+	pad_path = get_pad_path()
 	try:
-		pad = list(open(get_pad_path(),'rb').read(length))
+		f = open(pad_path,'rb')
 	except:
 		init()
-		pad = list(open(get_pad_path(),'rb').read(length))
+		f = open(pad_path,'rb')
+	raw = f.read()
+	if sys.version_info[0]==2:
+		a = array.array('B')
+		a.fromstring(raw)
+		return a
+	else:
+		return array.array('B',raw)
+
+def xor_with_pad(text,seed=0):
+	if sys.version_info[0]==3 and type(text)==str:
+		text=text.encode()
+	pad=get_pad()
 	random.seed(seed)
 	random.shuffle(pad)
-	return pad
-
-def xor_with_pad(s,seed=0):
-	p=get_pad(len(s),seed)
-	if sys.version_info[0]==3 and type(s)==str:
-		s=s.encode()
-	if sys.version_info[0]==2:
-		try:
-			x = [(ord(a)^ord(b)) for a,b in zip(s,p)]
-		except:
-			x = [(a^ord(b)) for a,b in zip(s,p)]
-		return x
-	else:
-		x = [a^b for a,b in zip(s,p)]
-		return x
+	t = array.array('B',text)
+	return [a^b for a,b in zip(t,pad)]
 
 def init(length=4096):
 	p = os.urandom(length)
@@ -48,22 +50,34 @@ def init(length=4096):
 	# TODO make file private
 
 def encode(s):
-	raw_seed= os.urandom(4)
-	seed=struct.unpack('i',raw_seed)
+	raw_seed=os.urandom(4)
+	seed=struct.unpack('I',raw_seed)
 	n=xor_with_pad(s,seed)
 	b = raw_seed+struct.pack(len(n)*'B',*n)
-	return __encode(b).decode()
+	text = __encode(b)
+	text = text.decode() if sys.version_info[0]==3 else text
+	return text.replace('=','x')
 
 def decode(s):
-	b = __decode(s.encode())
+	b = __decode(s.replace('x','=').encode())
 	raw_seed,b = b[:4],b[4:]
-	seed=struct.unpack('i',raw_seed)
+	seed=struct.unpack('I',raw_seed)
 	n = struct.unpack(len(b)*'B',b)
 	x = xor_with_pad(n,seed)
-	return struct.pack(len(x)*'B',*x).decode()
-
+	text = struct.pack(len(x)*'B',*x)
+	return text.decode() if sys.version_info[0]==3 else text
+	
 if __name__=="__main__":
-	for a in ('test','takt'):
-		b=encode(a)
-		c=decode(b)
-		print(a,b,c)
+	if 0:
+		print(xor_with_pad('test'))
+	if 1:
+		for a in ('test','takt','ktulu1212ftagn!'):
+			b=encode(a)
+			c=decode(b)
+			print(a,b,c,a==c)
+	if 0:
+		a=b"test"
+		b=b"\xff\x00\xf0\x0f"
+		aa=array.array('B',a)
+		ba=array.array('B',b)
+		print([a^b for a,b in zip(aa,ba)])
