@@ -34,11 +34,14 @@ def get_pad():
 	else:
 		return array.array('B',raw)
 
-def xor_with_pad(text,seed=0):
+def xor_with_pad(text,seed=None):
 	if sys.version_info[0]==3 and type(text)==str:
 		text=text.encode()
 	pad=get_pad()
-	random.seed(seed)
+	if sys.version_info[0]==3:
+		random.seed(seed,version=1)
+	else:
+		random.seed(seed)
 	random.shuffle(pad)
 	t = array.array('B',text)
 	return [a^b for a,b in zip(t,pad)]
@@ -71,7 +74,7 @@ if __name__=="__main__":
 	if 0:
 		print(xor_with_pad('test'))
 	if 1:
-		for a in ('test','takt','ktulu1212ftagn!'):
+		for a in ('test','takt','zzz'):
 			b=encode(a)
 			c=decode(b)
 			print(a,b,c,a==c)
