@@ -2,6 +2,7 @@
 
 ## changes overview
 
+* simplicity over performance
 * unified input and output (input / ?output? operators)
 * step pipelining (string / iterator)
 * better step decomposition
@@ -12,6 +13,13 @@
 * no duplicates of arg names (?except for input and output?)
 * input / output caching
 * optional step labels or tags
+* switch documentation to .rst format
+
+## strong points
+
+* no external dependencies
+* runs on python2 and python3
+
 
 ## input operators
 
