@@ -9,14 +9,22 @@ code <<<
 	from subprocess import Popen,PIPE
 	import shlex
 	import sys
+	outvar = get('outvar','')
+	outstr = ''
 	for k,v in frame.args:
 		if k=='cmd':
 			cmd = frame.render(v)
-			stdin = get('input','') # TODO separate input for 
+			stdin = get('input','') # TODO separate input for
+			silent = get_flag('silent','no')
 			p = Popen(shlex.split(cmd), stdin=PIPE,stdout=PIPE,stderr=PIPE, shell=True)
 			pid = p.pid # TODO print/store PID
 			out,err=p.communicate(stdin.encode())
 			rc = p.returncode # TODO print/store PID
-			print(out.decode(errors='ignore')) # TODO change ingore
+			if not silent:
+				print(out.decode(errors='ignore')) # TODO change ingore
 			print(err.decode(errors='ignore'),file=sys.stderr) # TODO change ingore
-
+			if outvar:
+				outstr += out.decode(errors='ignore')
+	if outvar:
+		#print('XXX setting',outvar)
+		frame.vars[outvar] = outstr

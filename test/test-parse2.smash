@@ -1,0 +1,29 @@
+[cmd]
+x = putty host auth cmd
+
+@cmd putty host auth cmd
+
+cmd> putty host auth cmd
+
+@python
+	print("hello")
+	print("world")
+
+hive>
+	select *
+	from table
+	where 1
+	;
+
+[python]
+	text = prev.output
+	frame.out = re.findall('(?xs) hive> .+? \n (.+\n) hive>')
+	@zzz
+	def x(x):
+		print("ok")
+
+@findall < open('test','w').read()
+.pattern = (?xs) hive> .+? \n (.+\n) hive>
+
+@index 0
+

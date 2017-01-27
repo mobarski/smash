@@ -1,0 +1,37 @@
+[let]
+intro = no
+outro = yes
+
+[template]
+template <<<
+	START
+	#start 
+	THIS
+	IS
+	INTRO
+	#end
+	
+	$x
+	${x white split}
+	
+	THE
+	MAIN
+	PART
+	
+	#start1 intro if lower sep split dlm join rstrip
+	OUTRO
+	BODY
+	#end
+	END
+
+[let]
+intro = yes
+
+[template]
+template <<<
+	#start-intro
+	A long time ago
+	in a galaxy
+	far, far away...
+	#end-intro
+	No one expects the Spanish Inquisition...

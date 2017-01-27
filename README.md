@@ -530,7 +530,7 @@ Arguments:
 
 > **join** - delimiter for joining columns or records
 
-> **flags** - regular expression flags; defaults to x (VERBOSE) 
+> **flags** - regular expression flags
 
 > **db** - database connection constructor
 

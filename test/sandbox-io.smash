@@ -1,0 +1,86 @@
+[python] print "ok"
+[cmd] hive -e "select * from mo_dq"
+
+[bash]
+
+[test] a=1 b=2
+c=3 d=4
+e<<<
+	multi
+	line
+	input
+f<<open('path','w').read()
+g<path
+out >>
+
+[sql] records
+<<<
+	select *
+	from tab;
+.out 
+
+[tsv]
+in << records.out
+
+[template] 
+iter row << step(-1).out
+
+[python]
+out = path('xxx','a') var('zzzz','b') tab('yyy','drop')
+.in <<<
+	print("hello")
+	print("world")
+
+[cmd] costam
+
+[re] #costam #ccc #xxx #eee
+
+out << re.findall('')
+	to
+	jest
+	test
+
+
+[find-first]
+input << prev.output
+pattern = (?sx) hive> .+? \n (.+) hive>
+
+
+
+
+TOP DOWN
+
+[sql]
+[ssh]
+[cmd]
+[re]
+
+[kinit]
+
+[hive] select * from costam
+
+
+[re] << prev.output
+pattern = (?sx) hive> .+?\n (.*\n) hive>
+
+[tsv]
+	read('test.txt')
+	asd
+	asdasd
+	asdasd
+< test
+< zzz
+<< "ok"
+skip = yes
+
+[python]
+input = $x
+input.path = aczxc
+input. = costam
+in.val = to jest test
+in.var = x
+in.path = c:\costam.txt
+out.var = rows
+out.tab = tabela a b c
+out.iter = costam a b c
+out.expr = 

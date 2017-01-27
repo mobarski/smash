@@ -7,12 +7,13 @@ code <<<
 	def exclude(pat,lst): return [x for x in lst if not re.search(pat,x)]
 	def select(pat,lst): return [x for x in lst if re.search(pat,x)]
 	def split(pat,s): return [x.strip() for x in re.split(pat,s)]
-	fun_map = {'split':split,'find':re.findall,'join':join,'exclude':exclude,'select':select}
+	def slice(pat,x): return x[slice(*map(int,str(pat).split(':')))]
+	fun_map = {'split':split,'find':re.findall,'join':join,'exclude':exclude,'select':select,'slice':slice}
 	
 	data = get('data')
 	tab = get('tab')
 	it = get('iter')
-	flags = get('flags','x')
+	flags = get('flags')
 	re_flags = "(?%s)"%flags if flags else ''
 	
 	todo = []
