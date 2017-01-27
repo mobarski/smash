@@ -5,6 +5,8 @@ import random
 import base64
 import array
 
+# TODO RENAME !!!
+
 """
 OneTimePad-Like encoding / decoding
 """

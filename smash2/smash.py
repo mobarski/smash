@@ -34,6 +34,8 @@ def run_python(text,stack=[]):
 			if k==key: return v
 		return default
 	
+	# TODO capture and echo stdout, stderr
+	
 	for k,v in args:
 		if k=='':
 			# TODO refector into separate function
@@ -52,6 +54,7 @@ def run_python(text,stack=[]):
 				#print(v.splitlines()[e_line-1])
 				# TODO print call stack
 				exit(1)
+	# TODO store stdout, stderr
 
 def run_other(text,stack=[]):
 	name = parse.name(text)
@@ -80,7 +83,7 @@ def run_path(path,stack=[]):
 	run_str(code,stack)
 
 def run_autoinit(dirpath,stack=[]):
-	aipath = os.path.join(dirpath,'autoinit.smash')
+	aipath = os.path.join(dirpath,'autoinit.smash') # TODO rename? autorun autoexec __init__
 	if os.path.exists(aipath):
 		run_path(aipath, stack)
 

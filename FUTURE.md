@@ -11,30 +11,29 @@
 * sqlite as the only internal db
 * better variable scoping
 * no duplicates of arg names (?except for input and output?)
-* input / output caching
+* input / output / error capture and caching
 * optional step labels or tags
-* switch documentation to .rst format
+* switch documentation to .rst format?
 
 ## strong points
 
 * no external dependencies
 * runs on python2 and python3
 
-
 ## input operators
 
-| operator | name              | description | multi-line |
-| --- | ---------------------- | ----------- | --- |
-| <<< | from python output     |  | yes, ignore text between operator and newline, dedent the rest of lines |
-|  << | from python expression |  | no |
-|   < | from file              |  | no |
-|   = | from text              |  | yes, dedent all lines and left-strip the first one |
+| operator | name              | description | multi-line | variables |
+| --- | ---------------------- | ----------- | --- | --- |
+| <<< | from python output     |  | yes, ignore text between operator and newline, dedent the rest of lines | no |
+|  << | from python expression |  | no | no |
+|   < | from file              |  | no | yes - in both file name and file content |
+|   = | from text              |  | yes, dedent all lines and left-strip the first one | yes |
 
 ## output operators
 
 | operator | name            | description |
 | --- | -------------------- | ----------- |
-| >>> | to python code block |  |
+| >>> | to python function / code block |  |
 |  >> | to smash variable    |  |
 |   > | to file              |  |
 
@@ -68,5 +67,7 @@ tab = my_numbers
 	print(','.join(map(row,prev.out)))
 out >> test
 append test << this.out
+
+out >>> var('test')
 
 ~~~~
