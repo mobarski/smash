@@ -56,7 +56,7 @@ def args(section):
 			sio.seek(0)
 			return k,sio.read()
 		elif op=='<<':
-			return k,eval(v.strip()) # TODO
+			return k,eval(v.strip())
 		elif op=='=':
 			return k,dedent(v).lstrip()
 		elif op=='<':
