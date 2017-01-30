@@ -1,0 +1,32 @@
+[input]
+	1  2  3
+	4  5  6
+	7  8  9
+>> raw
+
+[tsv]
+head = no
+cols = a b c
+<< raw
+>> tsv
+
+[insert]
+tab = my_numbers
+<< tsv
+>> records
+
+[sql]
+	select b*c
+	from my_numbers
+	where a > 1
+	;
+<< records
+
+[echo]
+<< records
+
+[python]
+	def row(r): return "(${0})".format(r)
+	print(','.join(map(row,prev.out)))
+<< records
+>> test
