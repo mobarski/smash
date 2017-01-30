@@ -14,22 +14,20 @@ p_name_or_empty = """(?xm)
 	(?: ^\[ ([^\]]*) \] ) | 	# section name
 	(?: $ )				# new line
 """
-p_arg_template = """(?xms)
-	(?:	^ ($left) 		$white (<<<) $white $eol 		($right_many) 	$end_many	) |
-	(?:	^ ($left) 		$white (=|<<) $white 		($right_many) 	$end_many	) |
-	(?:	^ ($left) 		$white (<) $white 			($right_one)	$white $eol	) |
-	(?:	^ ($section) 	$white () 					($right_many) 	$end_many	) |
-	(?:	^ ($section) 	$white ()					($right_one) 	$white $eol	)
+p_argt = """(?xms)
+	^ ($left) $white (?:
+		(?: 	(<<<) $white $eol ($right_many) $end_many ) |
+		(?: 	(=|<<) $white ($right_many) $end_many ) |
+		(?: 	(<) $white ($right_one) $white $eol )
+	)
 """
-
-p_arg = render(p_arg_template, dict(
+p_arg = render(p_argt,dict(
 	left = r"[^=<\r\n]*?",
 	right_one = r"[^\r\n]*?",
 	right_many = r".+?",
 	white = r"[ \t]*",
 	eol = r"(?=[\r\n]|\Z)+",
-	end_many = r"(?=^\S|\Z)",
-	section = r"\[[^\]]+\]"
+	end_many = r"(?=^\S|\Z)"
 ))
 
 def sections(text):
@@ -39,8 +37,9 @@ def name(section):
 	return re.findall(p_name,section)[0]
 
 def args(section, allowed=[]):
-	groups = re.findall(p_arg,section)
-	key_op_val_list= [(max(g[0::3]),max(g[1::3]),max(g[2::3])) for g in groups]
+	var_list_7 = re.findall(p_arg,section)
+	#print(var_list_7)
+	var_list_3 = [(m[0], m[1] or m[3] or m[5], m[2] or m[4] or m[6]) for m in var_list_7]
 	def mapper(args): # TODO render in = and < ???
 		k,op,v = args
 		if allowed and k not in allowed:
@@ -56,11 +55,11 @@ def args(section, allowed=[]):
 			return k,sio.read()
 		elif op=='<<':
 			return k,eval(v.strip())
-		elif op=='=' or op=='':
+		elif op=='=':
 			return k,dedent(v).lstrip() # TODO smart rstrip
 		elif op=='<':
 			return k,open(v,'r').read()
-	var_list = [(k,v) for k,v in map(mapper,key_op_val_list) if k!=None]
+	var_list = [(k,v) for k,v in map(mapper,var_list_3) if k!=None]
 	#print('DEBUG',name(section),var_list)
 	return var_list
 

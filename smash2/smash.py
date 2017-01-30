@@ -105,4 +105,4 @@ run_str("""
 [hello]
 [hello]
 """,s)
-print(s)
+print('STACK:',s)
