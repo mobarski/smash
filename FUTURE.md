@@ -42,7 +42,7 @@
 
 ~~~~
 
-[write] <<
+[write]
 	1  2  3
 	4  5  6
 	7  8  9
@@ -55,7 +55,7 @@ cols = a b c
 tab = my_numbers
 
 [sql]
-=	select b*c
+	select b*c
 	from my_numbers
 	where a > 1
 	;
@@ -63,11 +63,13 @@ tab = my_numbers
 [echo]
 
 [python] 
-=	def row(r): return "(${0})".format(r)
+	def row(r): return "(${0})".format(r)
 	print(','.join(map(row,prev.out)))
 out >> test
 append test << this.out
 
 out >>> var('test')
+
+[cmd] ssh $host $auth -m commit.sh 
 
 ~~~~

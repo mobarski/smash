@@ -94,7 +94,7 @@ x = 42
 
 import sys
 sys.path.append('..')
-from parse3 import *
+from parse import *
 
 if __name__=="__main__":
 	if 1:
