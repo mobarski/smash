@@ -6,11 +6,11 @@
 [tsv]
 head = no
 cols = a b c
-in = prev.out
+in << prev
 
 [insert]
 tab = my_numbers
-in = prev.out
+in << prev
 
 [sql]
 	select b*c
@@ -19,10 +19,10 @@ in = prev.out
 	;
 
 [echo]
-in = prev.out
+in << prev
 
 [python] 
 	def row(r): return "(${0})".format(r)
 	print(','.join(map(row,prev.out)))
-in = prev.out
+in << prev
 out >> test
