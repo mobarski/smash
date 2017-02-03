@@ -93,12 +93,10 @@ x = 42
 """
 
 import sys
+from pprint import pprint
 sys.path.append('..')
 from parse import *
 
 if __name__=="__main__":
 	if 1:
-		for s in sections(in1):
-			print('section name:',name(s))
-			print('args:',args(s))
-			print()
+		pprint(parse(in1))
