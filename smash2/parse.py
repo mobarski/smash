@@ -58,4 +58,5 @@ def _section_line_numbers(text):
 #######################################################
 
 def parse(text):
+	"parse text into list of (section,[args...]); args -> (left,op,right)"
 	return [(_name(s),_args(s)) for s in _sections(text)] # TODO line numbers
