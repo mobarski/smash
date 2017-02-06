@@ -1,15 +1,16 @@
+"""
+xor pad encoding / decoding
+
+>>> decode(encode("secret"))
+'secret'
+"""
+
 import os
 import sys
 import struct
 import random
 import base64
 import array
-
-# TODO RENAME !!!
-
-"""
-xor pad encoding / decoding
-"""
 
 # TODO turn into object
 # TODO optimize

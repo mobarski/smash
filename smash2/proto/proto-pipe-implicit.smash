@@ -23,3 +23,5 @@ tab = my_numbers
 	print(','.join(map(row,prev.out)))
 out >> test
 
+[cmd] ssh $host $auth $cmd
+in << none

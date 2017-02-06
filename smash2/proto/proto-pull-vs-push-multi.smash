@@ -1,0 +1,28 @@
+[sql]
+var all_cnt = select count(*) from tab
+var null_cnt = select count(col is null) from tab
+var dist_cnt = select count(distinct col) from tab
+
+#################################################
+
+[sql]
+	select count(*) from tab
+out >> all_cnt 
+
+[sql]
+	select count(col is null) from tab
+out >> null_cnt
+
+[sql]
+	select count(distinct col) from tab
+out >> dist_cnt 
+
+##################################################
+
+[sql]
+query cnt = select count(*) from tab
+query null = select count(col is null) from tab
+query dist = select count(distinct col) from tab
+cnt >> all_cnt
+null >> null_cnt
+dist >> dist

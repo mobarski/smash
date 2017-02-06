@@ -1,0 +1,115 @@
+[sql]
+var rows = select count(*) from tab
+var dist = select count(distinct col) from tab
+var null = select count(col is null) from tab
+var rows dist null = select count(*),count(distinct col),count(col is null) from tab
+
+[sql]
+in1 = select count(*) from tab
+in2 = select count(distinct col) from tab
+in3 = select count(col is null) from tab
+in4 = select count(*),count(distinct col),count(col is null) from tab
+in5 = select * from tab limit 5
+out1 >> var rows
+out2 >> var dist
+out3 >> var null
+out4 >> var rows dist null
+out5 >> pickle file sample.txt
+
+[sql]
+code1 = select count(*) from tab
+code2 = select count(distinct col) from tab
+code3 = select count(col is null) from tab
+code4 = select count(*),count(distinct col),count(col is null) from tab
+code5 = select * from tab limit 5
+code1.out >> var rows
+code2.out >> var dist
+code3.out >> var null
+code4.out >> var rows dist null
+code5.out >> pickle file sample.txt
+
+[sql]
+code1 = select count(*) from tab
+code2 = select count(distinct col) from tab
+code3 = select count(col is null) from tab
+code4 = select count(*),count(distinct col),count(col is null) from tab
+code5 = select * from tab limit 5
+var rows << code1
+var dist << code2
+var null << code3
+var rows dist null << code4
+pickle file sample.txt << code5
+
+[sql]
+	[query] select count(*) from tab
+	out first >> var rows
+	[query] select count(distinct col) from tab
+	out first >> var dist
+	[query] select count(col is null) from tab
+	[query] select count(*),count(distinct col),count(col is null) from tab
+	[query] select * from tab limit 5
+
+[sql] select * from tab
+first row >> var x
+out >> value var x
+value >> var x
+out >> file costam.txt append
+in << file costam.txt
+
+[python] code =
+	print("hello")
+	print("world")
+out >> file out.txt
+
+[python]
+	code		print("hello")
+			print("world")
+	
+	out		file out.txt
+	skip		$should-skip
+
+[python]
+code		print("hello")
+		print("world")
+out	file out.txt
+skip	$should-skip
+
+[sql]
+	code		select * from tab
+			
+	out		file out.txt
+
+[sql]
+code		select * from tab		
+out		pickle file out.txt
+
+[sql]
+code = select * from tab
+out > pickle file out.txt
+
+[sql] code =
+	select * from tab limit 5
+out = << pipe
+
+[let]
+exists << file-exists test.txt
+skip = $exists
+
+[python]
+	print("ok")
+out >> pipe(open('test.txt','w'),write)
+out >> append pickle file test.txt
+
+
+[sql]
+in1 = select count(*) from tab
+in2 = select count(distinct col) from tab
+in3 = select count(col is null) from tab
+in4 = select count(*),count(distinct col),count(col is null) from tab
+in5 = select * from tab limit 5
+in6 : file query.txt
+out1 | var rows
+out2 | var dist
+out3 | var null
+out4 >> var rows dist null
+out5 >> pickle file sample.txt

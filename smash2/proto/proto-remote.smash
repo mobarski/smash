@@ -1,0 +1,12 @@
+[remote]
+alias = h
+host = hdpjob
+user = ...
+pw = ...
+cmd = plink $host -u $user -p $pw 
+python = python
+
+[cmd]
+
+
+[close]

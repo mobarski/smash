@@ -1,0 +1,41 @@
+[loop]
+var = x
+from = 1
+to = 100
+code =
+	[python]
+	code =
+		print("x = $x")
+
+#####################
+
+[loop]
+var = x
+from = 1
+to = 100
+proc = hello
+
+#####################
+
+[loop]
+var = x
+from = 1
+to = 100
+
+[python]
+over = x
+code =
+	print("x = $x")
+
+#####################
+
+[loop]
+var = x
+from = 1
+to = 100
+
+[python]
+code =
+	print("x = $x")
+
+[loop-end]

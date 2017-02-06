@@ -1,16 +1,35 @@
-command.go.*.smash=C:\maciek\apps\python32\App\python -u c:\maciek\apps\smash\smash.py "$(FileNameExt)"
-command.build.*.smash=C:\maciek\apps\python27\App\pythonw -u c:\maciek\apps\smash\smash.py "$(FileNameExt)"
+-- SMASH
+command.go.*.smash=C:\python36\python -u c:\maciek\apps\smash\smash.py "$(FileNameExt)"
 file.patterns.props=$(file.patterns.props);*.smash
 
-command.go.*.py=C:\maciek\apps\python32\App\pythonw -u "$(FileNameExt)"
-command.build.*.py=C:\maciek\apps\python27\App\pythonw -u "$(FileNameExt)"
+-- PYTHON
+command.go.*.py=C:\python36\pythonw -u "$(FileNameExt)"
+command.build.*.py=C:\python36\pythonw -m doctest -v "$(FileNameExt)"
+command.compile.*.py=C:\python27\pythonw -u C:\maciek\apps\pyinstaller\pyinstaller.py --onefile "$(FileNameExt)"
 
+-- PYTHON version
+command.name.5.*.py=Go Python35
+command.5.*.py=C:\python35\pythonw -u "$(FileNameExt)"
+command.name.6.*.py=Go Python36
+command.6.*.py=C:\python36\pythonw -u "$(FileNameExt)"
+command.name.7.*.py=Go Python27
+command.7.*.py=C:\python27\pythonw -u "$(FileNameExt)"
+
+-- DOT
+command.go.*.dot=C:/maciek/apps/graphviz/bin/dot.exe -Tpng -o$(FileName).png $(FileNameExt)
+command.build.*.dot=start $(FileName).png
+
+-- TESTING
+command.go.*.robot=robot --critical critical $(FileNameExt)
+
+-- COMMENTS
+comment.block.sql=-- 
+
+-- FIND
+find.files=*.py *.sql *.txt *.md *.rst *.ini *.smash
+
+-- SHORTCUTS
 user.shortcuts=\
 Ctrl+Up|2620|\
 Ctrl+Down|2621|\
 F1|IDM_FINDINFILES|
-
-comment.block.sql=-- 
-
-find.files=*.py *.sql *.txt *.md *.rst *.ini *.smash
-

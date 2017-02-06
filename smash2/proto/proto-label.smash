@@ -1,0 +1,38 @@
+[10] python
+	print("hello")
+	print("world")
+
+[20] cmd
+	ls -l ~/repo
+
+[30] ssh
+
+host = hdpjob
+user = zzz
+pw << decode 
+	
+[40] scp
+
+[999] end
+
+###################################################
+
+[python]
+	print("hello")
+	print("world")
+
+[cmd]
+	ls -l ~/repo
+
+[@label]
+
+[ssh]
+host = hdpjob
+user = zzz
+pw << decode 
+	
+[scp]
+
+[end]
+out ~ var x
+in ~ file test.txt
