@@ -14,7 +14,6 @@ import array
 
 # TODO turn into object
 # TODO optimize
-# TODO py3-py2 encoded value compatibility 
 
 __encode = base64.b32encode
 __decode = base64.b32decode
@@ -48,7 +47,7 @@ def _xor_with_pad(text,seed=None):
 		random.seed(seed,version=1)
 	else:
 		random.seed(seed)
-	random.shuffle(pad)
+	random.shuffle(pad,random=random.random) # shuffle that gives the same result in py2 and py3
 	t = array.array('B',text)
 	return [a^b for a,b in zip(t,pad)]
 
@@ -84,9 +83,19 @@ def decode(s):
 #########################################################
 
 if __name__=="__main__":
+	if 1:
+		if sys.version_info[0]==2:
+			print(encode('test'))
+		else:
+			print(decode('Y6EJGVMBF6YI4xxx'))
+	if 0:
+		if sys.version_info[0]==3:
+			print(encode('test'))
+		else:
+			print(decode('G4IUAKLCNI6Y2xxx'))
 	if 0:
 		print(_xor_with_pad('test'))
-	if 1:
+	if 0:
 		for a in ('test','takt','zzz'):
 			b=encode(a)
 			c=decode(b)
