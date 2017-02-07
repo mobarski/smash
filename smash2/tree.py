@@ -9,7 +9,7 @@ def as_flat_list(text):
 			out += [s]
 		else:
 			proc_text = proc.get(s.proc)
-			out += flatten(proc_text)
+			out += as_flat_list(proc_text)
 	return out
 
 print(as_flat_list("""
