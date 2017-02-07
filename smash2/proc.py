@@ -2,9 +2,12 @@ import os
 import sys
 import zipfile
 
-paths = ['./proc/proc.zip']
+# TODO mozliwosc wskazania konkretnego pliku/katalogu z procedurami w name
+# TODO default paths - smash proc dir, local dir, local proc dir, zip files?
 
-def other_text(name):
+paths = ['./proc']
+
+def get(name):
 	n = name+'.smash'
 	for p in paths:
 		if p.endswith('.zip'):
@@ -17,4 +20,4 @@ def other_text(name):
 				return open(fp,'r').read()
 
 if __name__=="__main__":
-	print(other_text('hive'))
+	print(get('hive'))

@@ -1,5 +1,6 @@
 import re
 from textwrap import dedent
+from collections import namedtuple
 
 #######################################################
 
@@ -57,6 +58,7 @@ def _section_line_numbers(text):
 
 #######################################################
 
-def parse(text):
+step = namedtuple('step',"proc args")
+def steps(text):
 	"parse text into list of (section,[args...]); args -> (left,op,right)"
-	return [(_name(s),_args(s)) for s in _sections(text)] # TODO line numbers
+	return [step(_name(s),_args(s)) for s in _sections(text)] # TODO line numbers

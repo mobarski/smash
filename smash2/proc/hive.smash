@@ -1,0 +1,31 @@
+[args]
+host = 
+user = 
+pw = 
+code =
+name = hive
+
+[decode]
+pw = $pw
+
+[default]
+proc = scp ssh
+args = host user pw
+
+[write]
+in = $code
+out > $name.sql
+
+[scp] $name.sql $host:
+
+
+[ssh] hive 1>$name.out  2> >($name.log >&2) -f $name.sql
+
+[scp] host:$name.{out,log} .
+
+[hive]
+	select ...
+	from ...
+	where ...
+name = test
+

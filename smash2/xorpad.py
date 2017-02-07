@@ -14,6 +14,7 @@ import array
 
 # TODO turn into object
 # TODO optimize
+# TODO ochrona przed uzyciem podkladki znanego hasla
 
 __encode = base64.b32encode
 __decode = base64.b32decode
