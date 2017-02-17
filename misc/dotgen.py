@@ -8,6 +8,17 @@ from random import randint
 from binascii import crc32
 def h(s,lo,hi,offset=0):
 	return lo+((crc32(s.encode())+offset)%(hi-lo+1))
+
+import math
+def scale(x,base=10,lo=1,hi=None,div=None):
+	if div: x/=div
+	if x<base: return lo
+	if base==10: val=math.log10(x)
+	else:
+		val=math.log(x,base)
+	val += lo
+	if hi and val>hi: return hi
+	return int(val)
 #################################################
 
 # TODO - GNE GLOBALS
