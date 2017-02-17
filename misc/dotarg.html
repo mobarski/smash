@@ -1,0 +1,74 @@
+<form action='graph_args.html' method='get'>
+
+<div class="form-group">
+	<label for="link">link:</label>
+	<select class="form-control" id="link">
+		<option value='bg'>Business Glossary</option>
+	</select>
+	
+	<label for="val">value:</label>
+	<select class="form-control" id="val">
+		<option value='bgm'>Business Glossary Mapping</option>
+		<option value='lmm'>Logical Model Mapping</option>
+		<option value='cnh'>Cluster Name Hash</option>
+		<option value='nnh'>Node Name Hash</option>
+		<option value='nlh'>Node Label Hash</option>
+		<option value='card'>Cardinality</option>
+	</select>
+
+	<label for="hint">hint:</label>
+	<select class="form-control" id="hint">
+		<option value='alias'>Alias</option>
+	</select>
+
+	<label for="style">style:</label>
+	<select class="form-control" id="style">
+		<option value='plain'>Plain</option>
+		<option value='plain'>Pastel</option>
+		<option value='plain'>Red - Green</option>
+		<option value='plain'>Red - Blue</option>
+		<option value='plain'>Brown - Green</option>
+		<option value='plain'>Yellow - Green</option>
+		<option value='plain'>Purple</option>
+		<option value='plain'>Blue</option>
+		<option value='plain'>Green</option>
+		<option value='plain'>Grey</option>
+		<option value='plain'>Orange</option>
+	</select>
+	<button type="submit" class="btn btn-default">show</button>
+	<button type="submit" class="btn btn-default">download</button>
+</div>
+
+<div class="form-group">
+	<label for="dir">direction:</label>
+	<select class="form-control" id="dir">
+		<option value='LR'>Left - Right</option>
+		<option value='TD'>Top - Down</option>
+	</select>
+
+	<label for="fit">fit:</label>
+	<select class="form-control" id="fit">
+		<option value='auto'>auto</option>
+		<option value='no'>no</option>
+		<option value='width'>width</option>
+		<option value='height'>height</option>
+	</select>
+	<label for="cluster">cluster:</label>
+	<select class="form-control" id="cluster">
+		<option value='cluster'>yes</option>
+		<option value='nocluster'>no</option>
+	</select>
+	<label for="filter">filter:</label>
+	<select class="form-control" id="filter">
+		<option value='omit'>OMIT</option>
+		<option value='select'>SELECT</option>
+	</select>
+	<label class="checkbox-inline"><input type="checkbox" value="">who</label>
+	<label class="checkbox-inline"><input type="checkbox" value="">what</label>
+	<label class="checkbox-inline"><input type="checkbox" value="">where</label>
+	<label class="checkbox-inline"><input type="checkbox" value="">when</label>
+	<label class="checkbox-inline"><input type="checkbox" value="">how</label>
+	<label class="checkbox-inline"><input type="checkbox" value="">why</label>
+</div>
+
+</form>
