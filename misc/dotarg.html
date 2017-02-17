@@ -1,74 +1,77 @@
-<form action='graph_args.html' method='get'>
+<form action='' method='post' target="frm">
 
 <div class="form-group">
 	<label for="link">link:</label>
-	<select class="form-control" id="link">
+	<select class="form-control" id="link" name="link">
 		<option value='bg'>Business Glossary</option>
 	</select>
 	
 	<label for="val">value:</label>
-	<select class="form-control" id="val">
+	<select class="form-control" id="val" name="val">
+		<option value='cnh'>Cluster Name</option>
 		<option value='bgm'>Business Glossary Mapping</option>
 		<option value='lmm'>Logical Model Mapping</option>
-		<option value='cnh'>Cluster Name Hash</option>
-		<option value='nnh'>Node Name Hash</option>
-		<option value='nlh'>Node Label Hash</option>
+		<option value='nnh'>Node Name</option>
+		<option value='nlh'>Node Label</option>
 		<option value='card'>Cardinality</option>
 	</select>
 
 	<label for="hint">hint:</label>
-	<select class="form-control" id="hint">
+	<select class="form-control" id="hint" name="hint">
 		<option value='alias'>Alias</option>
 	</select>
 
 	<label for="style">style:</label>
-	<select class="form-control" id="style">
-		<option value='plain'>Plain</option>
-		<option value='plain'>Pastel</option>
-		<option value='plain'>Red - Green</option>
-		<option value='plain'>Red - Blue</option>
-		<option value='plain'>Brown - Green</option>
-		<option value='plain'>Yellow - Green</option>
-		<option value='plain'>Purple</option>
-		<option value='plain'>Blue</option>
-		<option value='plain'>Green</option>
-		<option value='plain'>Grey</option>
-		<option value='plain'>Orange</option>
+	<select class="form-control" id="style" name="style">
+		<option value='pastel18:1:8'>Pastel</option>
+		<option value=''>White</option>
+		<option value='pastel28:1:8'>Pastel2</option>
+		<option value='rdylgn9:2:8'>Red - Green</option>
+		<option value='rdylbu9:2:8'>Red - Blue</option>
+		<option value='ylgn9:1:7'>Yellow - Green</option>
+		<option value='purples9:1:7'>Purple</option>
+		<option value='blues9:1:7'>Blue</option>
+		<option value='greens9:1:7'>Green</option>
+		<option value='greys9:1:7'>Grey</option>
+		<option value='ylorbr9:1:7'>Orange</option>
+		<option value='oranges9:1:7'>Orange2</option>
+		<option value='ylorrd9:1:7'>Red</option>
 	</select>
-	<button type="submit" class="btn btn-default">show</button>
-	<button type="submit" class="btn btn-default">download</button>
+	<button type="submit" class="btn btn-default" name="action" value="show">show</button>
+	<button type="submit" class="btn btn-default" name="action" value="download">download</button>
 </div>
 
 <div class="form-group">
 	<label for="dir">direction:</label>
-	<select class="form-control" id="dir">
-		<option value='LR'>Left - Right</option>
+	<select class="form-control" id="dir" name="dir">
 		<option value='TD'>Top - Down</option>
+		<option value='LR'>Left - Right</option>
 	</select>
 
 	<label for="fit">fit:</label>
-	<select class="form-control" id="fit">
-		<option value='auto'>auto</option>
+	<select class="form-control" id="fit" name="fit">
 		<option value='no'>no</option>
+		<option value='auto'>auto</option>
 		<option value='width'>width</option>
 		<option value='height'>height</option>
 	</select>
 	<label for="cluster">cluster:</label>
-	<select class="form-control" id="cluster">
-		<option value='cluster'>yes</option>
-		<option value='nocluster'>no</option>
+	<select class="form-control" id="cluster" name="cluster">
+		<option value='no'>no</option>
+		<option value='yes'>yes</option>
 	</select>
 	<label for="filter">filter:</label>
-	<select class="form-control" id="filter">
+	<select class="form-control" id="filter" name="filter">
 		<option value='omit'>OMIT</option>
 		<option value='select'>SELECT</option>
 	</select>
-	<label class="checkbox-inline"><input type="checkbox" value="">who</label>
-	<label class="checkbox-inline"><input type="checkbox" value="">what</label>
-	<label class="checkbox-inline"><input type="checkbox" value="">where</label>
-	<label class="checkbox-inline"><input type="checkbox" value="">when</label>
-	<label class="checkbox-inline"><input type="checkbox" value="">how</label>
-	<label class="checkbox-inline"><input type="checkbox" value="">why</label>
+	<label class="checkbox-inline"><input type="checkbox" name="who" value="">who</label>
+	<label class="checkbox-inline"><input type="checkbox" name="what" value="">what</label>
+	<label class="checkbox-inline"><input type="checkbox" name="where" value="">where</label>
+	<label class="checkbox-inline"><input type="checkbox" name="when" value="">when</label>
+	<label class="checkbox-inline"><input type="checkbox" name="how" value="">how</label>
+	<label class="checkbox-inline"><input type="checkbox" name="why" value="">why</label>
 </div>
 
 </form>
+<iframe src="" style="border:none;" width="100%" height="90%" name="frm"></iframe>

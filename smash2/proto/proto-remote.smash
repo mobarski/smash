@@ -6,7 +6,27 @@ pw = ...
 cmd = plink $host -u $user -p $pw 
 python = python
 
+[hive]
+	set ...
+	select *
+	from ...
+	where ...
+	limit 100
+	;
+
+[spark]
+	...
+	...
+	...
+out >> screen
+
 [cmd]
 
-
 [close]
+
+[ssh]
+	hive  -f xxx.sql 1> >(tee xxx.out >&1) 2> >(tee xxx.log >&2)
+	spark-submit xxx.py 1> >(tee xxx.out >&1) 2> >(tee xxx.log >&2)
+	python xxx.py 1> >(tee xxx.out >&1) 2> >(tee xxx.log >&2)
+	
+
