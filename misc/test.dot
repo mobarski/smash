@@ -1,0 +1,22 @@
+strict digraph {
+graph [rankdir=TD compound=true]
+edge [arrowhead=none]
+node [shape=record style="rounded,filled" fillcolor=white]
+
+ aaa [label="aaa"  width=2 fontsize=28]
+ bbb [label="{to jest dlugi label bbb|{value\nanother|1000\n100|&#9679;&#9679;&#9679;&#9679;&#9675;\n&#9679;&#9679;&#9679;&#9675;&#9675;}}" ]
+ ccc [label="{to jest dlugi label ccc|value: 1000\nanother: 100}" ]
+ ddd [label=<
+        <font POINT-SIZE="12">
+        <table border="0">
+        <tr><td colspan="2"><font POINT-SIZE="14"><u>to jest dlugi label ddd</u></font></td></tr>
+        <tr><td>value</td><td>10000</td></tr>
+        <tr><td>another</td><td>100</td></tr>
+        </table>
+        </font>
+ >]
+
+aaa -> bbb
+bbb -> ccc
+bbb -> ddd
+}
