@@ -36,6 +36,37 @@ def rsplit(text,delimiters):
 		x = [rsplit(x,delimiters[1:]) for x in s]
 		return x if len(x)>1 else x[0]
 #################################################
+def get_color(node,value,scheme,lo,hi):
+	n = node
+	if lo<hi: reverse=False
+	else:
+		reverse=True
+		lo,hi=hi,lo
+	if not value or value=='cluster':
+		v = h(n.cluster or n.node,lo,hi,0)
+	if value=='count':
+		v = n.count
+		if v=='': return ""
+		v = scale(int(v),lo=lo,hi=hi)
+	if reverse:
+		v = hi-(v-lo)
+	return "/{0}/{1}".format(scheme,v)
+
+def get_tooltip(node,hint):
+	n = node
+	if not hint: return n.node
+	if hint=='count': return n.count
+	if hint=='src': return n.src
+
+def get_label(node,info,direction):
+	n = node
+	label = n.label or n.node.replace('_',' ')
+	if not info: return label
+	if info=='count': out = '{0}|{1}'.format(label,n.count) if n.count else label
+	if info=='src': out = '{0}|{1}'.format(label,n.src) if n.src else label
+	return '{'+out+'}' if direction.upper()=='TD' and '|' in out else out
+
+#################################################
 
 # TODO - GNE GLOBALS
 # TODO - N SHAPE
@@ -59,11 +90,11 @@ def load(filename, columns, skip_header=True, dlm='\t', rec='rec', lst_dlm='\s+'
 		out += [record(*r)]
 	return out
 
-nodes = load('data/conceptual-n.xls',"area graph cluster node label tags val",rec='v')
+nodes = load('data/conceptual-n.xls',"area graph cluster node label tags count src",rec='v')
 edges = load('data/conceptual-e.xls',"area graph cluster node node2 tags",rec='e',lst='node2')
 
 # TODO rename style to colors
-def generate(filename, cluster=True, direction='TD', style='', value=''):
+def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info=''):
 	# generator
 	sys.stdout=open(filename,'w')
 	print('strict digraph {')
@@ -80,7 +111,8 @@ def generate(filename, cluster=True, direction='TD', style='', value=''):
 	# nodes
 	prev_cluster=''
 	for n in nodes:
-		label = n.label or n.node.replace('_',' ')
+		#label = n.label or n.node.replace('_',' ')
+		label = get_label(n,info,direction)
 		if prev_cluster != n.cluster and cluster:
 			if prev_cluster	!= '': print('}\n')
 			if n.cluster	!= '': print('\nsubgraph cluster_%s { graph[style=invis]'%(n.cluster))
@@ -89,8 +121,10 @@ def generate(filename, cluster=True, direction='TD', style='', value=''):
 		if 'question' in n.tags: aux+=' shape=circle'
 		if 'fact' in n.tags: aux+=' width=2 fontsize=28'
 		if style:
-			color_id = h(n.cluster or n.node,color_lo,color_hi,0)
-			aux+=' fillcolor="/{0}/{1}"'.format(color_scheme,color_id)
+			color = get_color(n,value,color_scheme,color_lo,color_hi)
+			aux+=' fillcolor="{0}"'.format(color)
+		tooltip = get_tooltip(n,hint)
+		aux+=' tooltip="{0}"'.format(tooltip)
 		print(' %s [label="%s" %s]'%(n.node,label,aux))
 	if prev_cluster != '' and cluster: print('}\n')
 	print('\n')

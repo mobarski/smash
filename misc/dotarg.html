@@ -7,18 +7,27 @@
 	</select>
 	
 	<label for="val">value:</label>
-	<select class="form-control" id="val" name="val">
-		<option value='cnh'>Cluster Name</option>
+	<select class="form-control" id="val" name="value">
+		<option value='cluster'>Cluster Name</option>
+		<option value='count'>Count</option>
 		<option value='bgm'>Business Glossary Mapping</option>
 		<option value='lmm'>Logical Model Mapping</option>
 		<option value='nnh'>Node Name</option>
 		<option value='nlh'>Node Label</option>
-		<option value='card'>Cardinality</option>
 	</select>
 
 	<label for="hint">hint:</label>
 	<select class="form-control" id="hint" name="hint">
-		<option value='alias'>Alias</option>
+		<option value=''>Name</option>
+		<option value='count'>Count</option>
+		<option value='src'>Source</option>
+	</select>
+
+	<label for="info">information:</label>
+	<select class="form-control" id="info" name="info">
+		<option value=''>None</option>
+		<option value='count'>Count</option>
+		<option value='src'>Source</option>
 	</select>
 
 	<label for="style">style:</label>
@@ -29,6 +38,9 @@
 		<option value='rdylgn9:2:8'>Red - Green</option>
 		<option value='rdylbu9:2:8'>Red - Blue</option>
 		<option value='ylgn9:1:7'>Yellow - Green</option>
+		<option value='rdylgn9:8:2'>Green - Red</option>
+		<option value='rdylbu9:8:2'>Blue - Red</option>
+		<option value='ylgn9:7:1'>Green - Yellow</option>		
 		<option value='purples9:1:7'>Purple</option>
 		<option value='blues9:1:7'>Blue</option>
 		<option value='greens9:1:7'>Green</option>
