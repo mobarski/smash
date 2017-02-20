@@ -3,31 +3,18 @@
 <div class="form-group">
 	<label for="link">link:</label>
 	<select class="form-control" id="link" name="link">
-		<option value='bg'>Business Glossary</option>
+		<option value='src'>Source</option>
+		<option value=''>TODO Business Glossary</option>
 	</select>
 	
 	<label for="val">value:</label>
 	<select class="form-control" id="val" name="value">
 		<option value='cluster'>Cluster Name</option>
 		<option value='count'>Count</option>
-		<option value='bgm'>Business Glossary Mapping</option>
-		<option value='lmm'>Logical Model Mapping</option>
-		<option value='nnh'>Node Name</option>
-		<option value='nlh'>Node Label</option>
-	</select>
-
-	<label for="hint">hint:</label>
-	<select class="form-control" id="hint" name="hint">
-		<option value=''>Name</option>
-		<option value='count'>Count</option>
 		<option value='src'>Source</option>
-	</select>
-
-	<label for="info">information:</label>
-	<select class="form-control" id="info" name="info">
-		<option value=''>None</option>
-		<option value='count'>Count</option>
-		<option value='src'>Source</option>
+		<option value='bg'>Business Glossary</option>
+		<option value='lmm'>TODO Logical Model</option>
+		<option value='prog'>TODO Progress</option>
 	</select>
 
 	<label for="style">style:</label>
@@ -49,8 +36,23 @@
 		<option value='oranges9:1:7'>Orange2</option>
 		<option value='ylorrd9:1:7'>Red</option>
 	</select>
-	<button type="submit" class="btn btn-default" name="action" value="show">show</button>
-	<button type="submit" class="btn btn-default" name="action" value="download">download</button>
+
+	<label for="info">information:</label>
+	<select class="form-control" id="info" name="info">
+		<option value=''>None</option>
+		<option value='count'>Count</option>
+		<option value='src'>Source</option>
+		<option value='bg'>Business Glossary</option>
+		<option value='prog'>TODO Progress</option>
+	</select>
+
+	<label for="hint">hint:</label>
+	<select class="form-control" id="hint" name="hint">
+		<option value=''>Name</option>
+		<option value='count'>Count</option>
+		<option value='src'>Source</option>
+		<option value='bg'>Business Glossary</option>
+	</select>
 </div>
 
 <div class="form-group">
@@ -62,8 +64,8 @@
 
 	<label for="fit">fit:</label>
 	<select class="form-control" id="fit" name="fit">
-		<option value='no'>no</option>
 		<option value='auto'>auto</option>
+		<option value='no'>no</option>
 		<option value='width'>width</option>
 		<option value='height'>height</option>
 	</select>
@@ -77,12 +79,15 @@
 		<option value='omit'>OMIT</option>
 		<option value='select'>SELECT</option>
 	</select>
-	<label class="checkbox-inline"><input type="checkbox" name="who" value="">who</label>
-	<label class="checkbox-inline"><input type="checkbox" name="what" value="">what</label>
-	<label class="checkbox-inline"><input type="checkbox" name="where" value="">where</label>
-	<label class="checkbox-inline"><input type="checkbox" name="when" value="">when</label>
-	<label class="checkbox-inline"><input type="checkbox" name="how" value="">how</label>
-	<label class="checkbox-inline"><input type="checkbox" name="why" value="">why</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_who" value="who">who</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_what" value="what">what</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_where" value="where">where</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_when" value="when">when</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_how" value="how">how</label>
+	<label class="checkbox-inline"><input type="checkbox" name="cluster_why" value="why">why</label>
+
+	<button type="submit" class="btn btn-default" name="action" value="show">show</button>
+	<button type="submit" class="btn btn-default" name="action" value="download">download</button>
 </div>
 
 </form>
