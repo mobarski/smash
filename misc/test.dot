@@ -4,6 +4,7 @@ edge [arrowhead=none]
 node [shape=record style="rounded,filled" fillcolor=white]
 
  aaa [label="aaa"  width=2 fontsize=28]
+ xxx [pos="0,0!"]
  bbb [label="{to jest dlugi label bbb|{value\nanother|1000\n100|&#9679;&#9679;&#9679;&#9679;&#9675;\n&#9679;&#9679;&#9679;&#9675;&#9675;}}" ]
  ccc [label="{to jest dlugi label ccc|value: 1000\nanother: 100}" ]
  ddd [label=<
@@ -16,7 +17,8 @@ node [shape=record style="rounded,filled" fillcolor=white]
         </font>
  >]
 
-aaa -> bbb
-bbb -> ccc
-bbb -> ddd
+aaa -> xxx [arrowhead=dotodot arrowsize=1]
+xxx -> bbb [arrowhead=odot style=dashed]
+bbb -> ccc [headlabel="0..1" taillabel="1..N"]
+bbb -> ddd [arrowhead=odot arrowtail=odot dir=both arrowsize=1]
 }

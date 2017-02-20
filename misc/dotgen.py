@@ -37,15 +37,16 @@ def rsplit(text,delimiters):
 		return x if len(x)>1 else x[0]
 #################################################
 
-# TODO - GNE GLOBALS
-# TODO - N SHAPE
-# TODO - N STYLE FILLCOLOR
-# TODO - N URL
-# TODO - E STYLE
-# TODO - E DIR
-# TODO - E ARROWHEAD
-# TODO - E ARROWTAIL
-# TODO - C STYLE
+# TODO - E - OMT notation (object modeling technique)
+# - generalization / inheritance (onormal) [G] [I]
+# - aggregation (odiamond)  [A]
+# - optional (odot) [O]
+# - many / multiple (dot) [M]
+# - one (none)
+
+# TODO - GNE - GLOBALS
+
+#################################################
 
 # data source
 
@@ -114,7 +115,7 @@ def render(dot, out, fmt='png'):
 
 if __name__=="__main__":
 	#generate('test.dot')
-	#render('test.dot','test')
+	render('test.dot','test')
 	#print(progress(0.99,3))
-	print(rsplit('a,1:b,2|z','|,:.'))
+	#print(rsplit('a,1:b,2|z','|,:.'))
 	
