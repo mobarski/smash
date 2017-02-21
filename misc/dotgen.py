@@ -87,14 +87,87 @@ def get_href(node,link):
 	if not link: return ''
 	if link=='src': return '/tabs/{0}'.format(n.src) if n.src else ''
 
+# TODO
+def get_edge_style(edge,notation):
+	if not notation: return ''
+	rel = edge.relation
+	rel2 = edge.relation2
+	if "x" in rel: return ''
+	out = ""
+	if notation=='obarski':
+		if "o" in rel: out += " style=dashed"
+		if "m" in rel: out += " arrowhead=dot"
+		elif "g" in rel: out += " arrowhead=onormal"
+		elif "a" in rel: out += " arrowhead=odiamond"
+		else: out += " arrowhead=odot arrowsize=0.5" # XXX 
+		if edge.srcfk:
+			#out += ' label="{0}"'.format(edge.srcfk) # TODO label vs xlabel
+			pass
+		# not rel2 support?
+		return out
+	if notation=='obarski2':
+		if "o" in rel and "m" not in rel: out += " arrowhead=odot"
+		if "o" in rel and "m" in rel: out += " arrowhead=dotodot"
+		if "m" in rel and "o" not in rel: out += " arrowhead=dot"
+		if "g" in rel: out += " arrowhead=onormal"
+		if "a" in rel: out += " arrowhead=odiamond"
+		if rel2: out += " dir=both"
+		if "o" in rel2 and "m" not in rel2: out += " arrowtail=odot"
+		if "o" in rel2 and "m" in rel2: out += " arrowtail=dotodot"
+		if "m" in rel2 and "o" not in rel2: out += " arrowtail=dot"
+		if "g" in rel2: out += " arrowtail=onormal"
+		if "a" in rel2: out += " arrowtail=odiamond"		
+		return out
+	if notation=='omt':
+		if "o" in rel: return "arrowhead=odot"
+		if "m" in rel: return "arrowhead=dot"
+		if "g" in rel: return "arrowhead=onormal"
+		if "a" in rel: return "arrowhead=odiamond"
+		# not rel2 support?
+		return ''
+	if notation=='express':
+		if "o" in rel: out +=  " style=dashed"
+		if "g" in rel: out +=  " style=bold"
+		out += ' arrowhead=odot'
+		return out
+	if notation=='crow': # martin / IE notation
+		if "o" in rel and "m" in rel: out += " arrowhead=crowodot"
+		if "o" in rel and "m" not in rel: out += " arrowhead=teeodot"
+		if "o" not in rel and "m" in rel: out += " arrowhead=crowtee"
+		#if "o" not in rel and "m" not in rel: out += " arrowhead=teetee" # optional
+		if "g" in rel: out += " arrowhead=onormal" # ???
+		if "a" in rel: out += " arrowhead=odiamond" # ???
+		if rel2: out += " dir=both"
+		if "o" in rel2 and "m" in rel2: out += " arrowtail=crowodot"
+		if "o" in rel2 and "m" not in rel2: out += " arrowtail=teeodot"
+		if "o" not in rel2 and "m" in rel2: out += " arrowtail=crowtee"
+		#if "o" not in rel2 and "m" not in rel2: out += " arrowtail=teetee" # optional
+		if "g" in rel2: out += " arrowtail=onormal" # ???
+		if "a" in rel2: out += " arrowtail=odiamond" # ???		
+		return out
+	if notation=='uml':
+		if "o" in rel and "m" in rel: out += ' headlabel="0..N"'
+		if "o" in rel and "m" not in rel: out += ' headlabel="0..1"'
+		if "o" not in rel and "m" in rel: out += ' headlabel="1..N"'
+		if "o" not in rel and "m" not in rel: out += ' headlabel=""' # optional
+		if "g" in rel: out += " arrowhead=onormal"
+		if "a" in rel: out += " arrowhead=odiamond"
+		if "o" in rel2 and "m" in rel2: out += ' taillabel="0..N"'
+		if "o" in rel2 and "m" not in rel2: out += ' taillabel="0..1"'
+		if "o" not in rel2 and "m" in rel2: out += ' taillabel="1..N"'
+		if "o" not in rel2 and "m" not in rel2: out += ' taillabel=""' # optional
+		if "g" in rel2: out += " arrowtail=onormal"
+		if "a" in rel2: out += " arrowtail=odiamond"	
+		return out
+	
 #################################################
 
-# TODO - E - OMT notation (object modeling technique)
-# - generalization / inheritance (onormal) [G] [I]
-# - aggregation (odiamond)  [A]
-# - optional (odot) [O]
-# - many / multiple (dot) [M]
-# - one (none)
+# ALT:
+# 1 - m-mandatory/r-required o-optional
+# 2 - s-single m-multiple
+# 3 - g-generalization a-aggregation
+
+# TODO - N - entity / attribute / attribute_set(denormalization)
 
 # TODO - GNE - GLOBALS
 
@@ -102,7 +175,7 @@ def get_href(node,link):
 
 # data source
 
-def load(filename, columns, skip_header=True, dlm='\t', rec='rec', lst_dlm='\s+', lst=''):
+def load(filename, columns, skip_header=True, dlm='\t', rec='rec'):
 	record = namedtuple(rec,columns)
 	f = open(filename,'r')
 	if skip_header: f.readline()
@@ -112,11 +185,11 @@ def load(filename, columns, skip_header=True, dlm='\t', rec='rec', lst_dlm='\s+'
 		out += [record(*r)]
 	return out
 
-nodes = load('data/conceptual-n.xls',"area graph cluster node label tags count src bg",rec='v')
-edges = load('data/conceptual-e.xls',"area graph cluster node node2 tags",rec='e',lst='node2')
+nodes = load('data/conceptual-n.xls',"area graph cluster cluster2 node label tags count src bg",rec='v')
+edges = load('data/conceptual-e.xls',"area graph node node2 tags relation relation2 srcfk",rec='e')
 
 # TODO rename style to colors
-def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link=''):
+def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link='',notation='',question=''):
 	# generator
 	sys.stdout=open(filename,'w')
 	print('strict digraph {')
@@ -134,6 +207,7 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 	visible_nodes = set()
 	prev_cluster=''
 	for n in nodes:
+		if question=='no' and 'question' in n.tags: continue
 		if filter_type=='omit' and n.cluster and n.cluster in filter_clusters: continue
 		#if filter_type=='omit' and not n.cluster and n.node in filter_clusters: continue
 		if filter_type=='select' and n.cluster and n.cluster not in filter_clusters: continue
@@ -160,8 +234,16 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 
 	# edges
 	for e in edges:
-		if e.node in visible_nodes and e.node2 in visible_nodes:
-			print('%s -> %s'%(e.node,e.node2))
+		if (e.node in visible_nodes and e.node2 in visible_nodes) or 'question' in e.tags:
+			e_style = ''
+			if notation:
+				s = get_edge_style(e,notation)
+				if s:
+					e_style = '[{0}]'.format(s)
+			if 'question' in e.tags and question=='no' and e.node2 in visible_nodes:
+				print('fact -> %s %s'%(e.node2,e_style))
+			elif (e.node in visible_nodes and e.node2 in visible_nodes):
+				print('%s -> %s %s'%(e.node,e.node2,e_style))
 
 	print('}')
 	sys.stdout=sys.__stdout__
