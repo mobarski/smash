@@ -24,8 +24,10 @@ def concept3():
 	link=f.get('link','')
 	filter_type=f.get('filter','omit')
 	filter_clusters=[v for k,v in f.items() if k.startswith('cluster_')]
+	notation=f.get('notation','')
+	question=f.get('question','')
 	#print(locals()) # XXX
-	dotgen.generate('tmp/x.dot',direction=direction,cluster=cluster,style=style,value=value,hint=hint,info=info,filter_type=filter_type,filter_clusters=filter_clusters,link=link)
+	dotgen.generate('tmp/x.dot',direction=direction,cluster=cluster,style=style,value=value,hint=hint,info=info,filter_type=filter_type,filter_clusters=filter_clusters,link=link,notation=notation,question=question)
 	if action=="show":
 		dot.render('tmp/x.dot','tmp/x','svg')
 		bf = open('tmp/x.svg','r')

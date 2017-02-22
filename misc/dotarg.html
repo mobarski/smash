@@ -3,8 +3,8 @@
 <div class="form-group">
 	<label for="link">link:</label>
 	<select class="form-control" id="link" name="link">
+		<option value='bg'>Business Glossary</option>
 		<option value='src'>Source</option>
-		<option value=''>TODO Business Glossary</option>
 	</select>
 	
 	<label for="val">value:</label>
@@ -93,7 +93,8 @@
 <div class="form-group">
 	<label for="notation">notation:</label>
 	<select class="form-control" id="notation" name="notation">
-		<option value=''>simple</option>
+		<option value=''>none</option>
+		<option value='simple'>simple </option>
 		<option value='omt'>OMT</option>
 		<option value='uml'>UML</option>
 		<option value='express'>EXPRESS</option>
@@ -107,6 +108,14 @@
 		<option value=''>yes</option>
 		<option value='no'>no</option>
 	</select>
+
+	<label>reverse:</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_who" value="who">who</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_what" value="what">what</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_where" value="where">where</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_when" value="when">when</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_how" value="how">how</label>
+	<label class="checkbox-inline"><input type="checkbox" name="reverse_why" value="why">why</label>
 </div>
 
 </form>

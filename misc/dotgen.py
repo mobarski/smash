@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from copy import copy
 import sys
 import re
@@ -86,6 +86,7 @@ def get_href(node,link):
 	n = node
 	if not link: return ''
 	if link=='src': return '/tabs/{0}'.format(n.src) if n.src else ''
+	if link=='bg': return '/term/{0}'.format(n.bg) if n.bg else ''
 
 # TODO
 def get_edge_style(edge,notation):
@@ -94,6 +95,9 @@ def get_edge_style(edge,notation):
 	rel2 = edge.relation2
 	if "x" in rel: return ''
 	out = ""
+	if notation=='simple':
+		if "o" in rel: out += " style=dashed"
+		return out
 	if notation=='obarski':
 		if "o" in rel: out += " style=dashed"
 		if "m" in rel: out += " arrowhead=dot"
@@ -185,7 +189,7 @@ def load(filename, columns, skip_header=True, dlm='\t', rec='rec'):
 		out += [record(*r)]
 	return out
 
-nodes = load('data/conceptual-n.xls',"area graph cluster cluster2 node label tags count src bg",rec='v')
+nodes = load('data/conceptual-n.xls',"area graph cluster cluster2 node label tags rank count src bg",rec='v')
 edges = load('data/conceptual-e.xls',"area graph node node2 tags relation relation2 srcfk",rec='e')
 
 # TODO rename style to colors
@@ -205,6 +209,7 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 
 	# nodes
 	visible_nodes = set()
+	ranked = defaultdict(set)
 	prev_cluster=''
 	for n in nodes:
 		if question=='no' and 'question' in n.tags: continue
@@ -227,8 +232,10 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 		tooltip = get_tooltip(n,hint)
 		aux+=' tooltip="{0}"'.format(tooltip)
 		href = get_href(n,link)
-		aux += ' href="{0}"'.format(href) if href else ''
+		aux += ' href="{0}" target="_top"'.format(href) if href else ''
 		print(' %s [label="%s" %s]'%(n.node,label,aux))
+		if n.rank:
+			ranked[n.rank].add(n.node)
 	if prev_cluster != '' and cluster: print('}\n')
 	print('\n')
 
@@ -244,6 +251,9 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 				print('fact -> %s %s'%(e.node2,e_style))
 			elif (e.node in visible_nodes and e.node2 in visible_nodes):
 				print('%s -> %s %s'%(e.node,e.node2,e_style))
+
+	for r,n_list in ranked.items():
+		print('{rank=same; '+';'.join(n_list)+'}')
 
 	print('}')
 	sys.stdout=sys.__stdout__
