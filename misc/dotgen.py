@@ -44,6 +44,8 @@ def get_color(node,value,scheme,lo,hi):
 		lo,hi=hi,lo
 	if not value or value=='cluster':
 		v = h(n.cluster or n.node,lo,hi,0)
+	if value=='cluster2':
+		v = h(n.cluster2 or n.cluster or n.node,lo,hi,0)
 	if value=='count':
 		v = n.count
 		if v=='': return ""
@@ -90,11 +92,14 @@ def get_href(node,link):
 
 # TODO
 def get_edge_style(edge,notation):
-	if not notation: return ''
 	rel = edge.relation
 	rel2 = edge.relation2
-	if "x" in rel: return ''
 	out = ""
+	#if 'short' in edge.tags: out += " weight=100"
+	#if 'question' in edge.tags: out += " weight=5"
+	if 'long' in edge.tags: out += " weight=0"
+	if "x" in rel: return out
+	if not notation: return out
 	if notation=='simple':
 		if "o" in rel: out += " style=dashed"
 		return out
@@ -184,16 +189,21 @@ def load(filename, columns, skip_header=True, dlm='\t', rec='rec'):
 	f = open(filename,'r')
 	if skip_header: f.readline()
 	out = []
+	rec_line = ""
 	for line in f.readlines():
-		r = [x.strip() for x in re.split(dlm,line)]
+		rec_line += line
+		if rec_line.count('"')%2==1:
+			continue
+		r = [x.strip() for x in re.split(dlm,rec_line)]
 		out += [record(*r)]
+		rec_line = ""
 	return out
 
 nodes = load('data/conceptual-n.xls',"area graph cluster cluster2 node label tags rank count src bg",rec='v')
-edges = load('data/conceptual-e.xls',"area graph node node2 tags relation relation2 srcfk",rec='e')
+edges = load('data/conceptual-e.xls',"area graph node node2 tags relation relation2 srcfk srcfk2",rec='e')
 
 # TODO rename style to colors
-def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link='',notation='',question=''):
+def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link='',notation='',question='',reverse_clusters=[],rank=''):
 	# generator
 	sys.stdout=open(filename,'w')
 	print('strict digraph {')
@@ -210,12 +220,16 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 	# nodes
 	visible_nodes = set()
 	ranked = defaultdict(set)
+	cluster_by_node = defaultdict(str)
+	reversed_edges= defaultdict(set)
 	prev_cluster=''
 	for n in nodes:
+		cluster_by_node[n.node] = n.cluster
 		if question=='no' and 'question' in n.tags: continue
 		if filter_type=='omit' and n.cluster and n.cluster in filter_clusters: continue
 		#if filter_type=='omit' and not n.cluster and n.node in filter_clusters: continue
 		if filter_type=='select' and n.cluster and n.cluster not in filter_clusters: continue
+		#if n.cluster in reverse_clusters: reversed_nodes.add(n.node)
 		visible_nodes.add(n.node)
 		#label = n.label or n.node.replace('_',' ')
 		label = get_label(n,info,direction)
@@ -242,18 +256,22 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 	# edges
 	for e in edges:
 		if (e.node in visible_nodes and e.node2 in visible_nodes) or 'question' in e.tags:
-			e_style = ''
-			if notation:
-				s = get_edge_style(e,notation)
-				if s:
-					e_style = '[{0}]'.format(s)
+			s = get_edge_style(e,notation)
+			e_style = '[{0}]'.format(s) if s else ''
 			if 'question' in e.tags and question=='no' and e.node2 in visible_nodes:
 				print('fact -> %s %s'%(e.node2,e_style))
 			elif (e.node in visible_nodes and e.node2 in visible_nodes):
-				print('%s -> %s %s'%(e.node,e.node2,e_style))
+				#print('%s -> %s %s'%(e.node,e.node2,e_style))
+				if cluster_by_node[e.node] in reverse_clusters or e.node in reverse_clusters or e.node2 in reverse_clusters:
+					print('%s -> %s %s'%(e.node2,e.node,e_style),file=sys.stderr)
+					print('%s -> %s %s'%(e.node2,e.node,e_style)) # TODO style
+				else:
+					print('%s -> %s %s'%(e.node,e.node2,e_style))
 
-	for r,n_list in ranked.items():
-		print('{rank=same; '+';'.join(n_list)+'}')
+	# TODO vs reverse
+	if rank=='force':
+		for r,n_list in ranked.items():
+			print('{rank=same; '+';'.join(n_list)+'}')
 
 	print('}')
 	sys.stdout=sys.__stdout__
@@ -273,4 +291,4 @@ if __name__=="__main__":
 	render('test.dot','test')
 	#print(progress(0.99,3))
 	#print(rsplit('a,1:b,2|z','|,:.'))
-	
+
