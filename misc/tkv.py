@@ -14,7 +14,7 @@ NoSQL interface to SQLite
 # PERF json vs pickle -> 1.3 writes per second, 0.6 reads per second
 # PERF optional pickle vs pickle -> 0.9 x reads and writes per second
 
-class SERDES:
+class SERDE:
 	"serialization-deserialization interface"
 	def __init__(self):
 		self.protocol = 3
@@ -31,7 +31,7 @@ class LINK:
 	def __init__(self):
 		self.cursor.execute('create table if not exists tkv_link (link,k1,k2,ts)')
 		self.cursor.execute('create unique index if not exists i_tkv_link1 on tkv_link (link,k1,k2)')
-		self.cursor.execute('create unique index if not exists i_tkv_link2 on tkv_link (link,k2,k1)')
+		self.cursor.execute('create index if not exists i_tkv_link2 on tkv_link (link,k2)')
 	def add_link(self,link,k1,k2):
 		ts = time()
 		self.cursor.execute('insert or replace into tkv_link values (?,?,?,?)', (link,k1,k2,ts))
@@ -67,6 +67,7 @@ class NOHIST:
 	def set(self,t,k,v,ts): pass
 
 
+# TODO
 class STAR:
 	"star schema interface"
 	def __init__(self):
@@ -74,17 +75,17 @@ class STAR:
 	def add_fact(self,star,*keys):
 		pass
 
-
-class TKV(SERDES,LINK,HIST):
+# TODO HIST,SERDE mixin
+class TKV(SERDE,LINK,NOHIST):
 	"Table-Key-Value database"
 	def __init__(self,path=':memory:'):
 		self.connection = sqlite3.connect(path)
 		self.cursor = self.connection.cursor()
 		self.cursor.execute('create table if not exists tkv (t,k,v,ts)')
 		self.cursor.execute('create unique index if not exists i_tkv on tkv (t,k)')
-		SERDES.__init__(self)
+		SERDE.__init__(self)
 		LINK.__init__(self)
-		HIST.__init__(self)
+		NOHIST.__init__(self)
 	### GET ###
 	def get(self,t,k,default=None):
 		results = self.cursor.execute('select v from tkv where t=? and k=?',(t,k))
@@ -98,14 +99,14 @@ class TKV(SERDES,LINK,HIST):
 		super().set(t,k,v,ts)
 	### ITER ###
 	def keys(self,t):
-		for x in self.cursor.execute('select distinct k from tkv where t=?',(t,)):
-			yield x[0]
+		for k in self.cursor.execute('select distinct k from tkv where t=?',(t,)):
+			yield k[0]
 	def values(self,t):
-		for x in self.cursor.execute('select distinct v from tkv where t=?',(t,)):
-			yield x[0]		
+		for v in self.cursor.execute('select distinct v from tkv where t=?',(t,)):
+			yield self.deserialize(v[0])
 	def items(self,t):
-		for x in self.cursor.execute('select distinct k,v from tkv where t=?',(t,)):
-			yield x[0],self.deserialize(x[1])		
+		for k,v in self.cursor.execute('select distinct k,v from tkv where t=?',(t,)):
+			yield k,self.deserialize(v)
 	### OTHER ###
 	def delete(self,t,k):
 		self.cursor.execute('delete from tkv where t=? and k=?',(t,k))
@@ -130,6 +131,7 @@ if __name__=="__main__":
 	print(list(db.get_links('usr:knows:usr')))
 	db.delete_links(2,left=['usr:knows:usr'])
 	print(list(db.get_links('usr:knows:usr')))
+	print(list(db.values('usr')))
 	if 0:
 		CNT = 1000000
 		t0=time()
