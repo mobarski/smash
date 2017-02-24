@@ -45,19 +45,6 @@ class SERDE:
 		return v
 
 
-class LINK1:
-	def __init__(self):
-		pass
-	def add_link(self,link,k1,k2):
-		v = self.get(link,k1,set())
-		v.add(k2)
-		self.set(link,k1,v)
-	def get_links(self,link,k1,t=''):
-		return self.get(link,k1,set())
-	def get_linked(self,link,k1,t):
-		for k2 in self.get(link,k1,set()):
-			yield self.get(t,k2)
-
 class LINK:
 	def __init__(self): pass
 	def add_link(self,link,k1,k2):
@@ -70,6 +57,7 @@ class LINK:
 	def get_linked(self,link,k1,t):
 		for k2 in self.get(link,k1,set()):
 			yield self.get(t,k2)
+
 
 # TODO separate file + attach
 class HIST:
@@ -84,7 +72,7 @@ class NOHIST:
 	def __init__(self): pass
 	def set(self,t,k,v,ts): pass
 
-
+# TODO
 class STAR:
 	"star schema interface"
 	def __init__(self):
@@ -104,7 +92,7 @@ class STAR:
 # TODO HIST mixin
 class TKV(SERDE,LINK,NOHIST,STAR):
 	"Table-Key-Value database"
-	def __init__(self,path=':memory:',serde='pickle'):
+	def __init__(self,path=':memory:',serde='json'):
 		self.path = path
 		self.conn = sqlite3.connect(path)
 		self.conn.execute('create table if not exists tkv (t,k,v,ts)')
@@ -115,19 +103,21 @@ class TKV(SERDE,LINK,NOHIST,STAR):
 		STAR.__init__(self)
 	### GET ###
 	def get(self,t,k,default=None):
-		results = self.conn.execute('select v from tkv where t=? and k=?',(t,k))
+		key=self.ser(k)
+		results = self.conn.execute('select v from tkv where t=? and k=?',(t,key))
 		x = results.fetchone()
 		return self.de(x[0]) if x else default
 	### SET ###
 	def set(self,t,k,v):
 		ts = time()
+		key=self.ser(k)
 		val = self.ser(v)
-		self.conn.execute('insert or replace into tkv values (?,?,?,?)',(t,k,val,ts))
+		self.conn.execute('insert or replace into tkv values (?,?,?,?)',(t,key,val,ts))
 		super().set(t,k,v,ts)
 	### ITER ###
 	def keys(self,t):
 		for k in self.conn.execute('select k from tkv where t=?',(t,)):
-			yield k[0]
+			yield self.de(k[0])
 	def values(self,t):
 		for v in self.conn.execute('select v from tkv where t=?',(t,)):
 			yield self.de(v[0])
@@ -136,7 +126,8 @@ class TKV(SERDE,LINK,NOHIST,STAR):
 			yield k,self.de(v)
 	### OTHER ###
 	def delete(self,t,k):
-		self.conn.execute('delete from tkv where t=? and k=?',(t,k))
+		key=self.ser(k)
+		self.conn.execute('delete from tkv where t=? and k=?',(t,key))
 	def truncate(self,t):
 		self.conn.execute('delete from tkv where t=?',(t,))
 	def commit(self):
@@ -146,7 +137,7 @@ connect = TKV
 
 
 if __name__=="__main__":
-	db = connect(serde='json')
+	db = connect()
 	if 1:
 		db.set('usr',1,'bob')
 		db.set('usr',2,'alice')
@@ -154,7 +145,7 @@ if __name__=="__main__":
 		db.add_link('u:knows:u',1,2)
 		db.add_link('u:knows:u',1,3)
 		db.add_link('u:knows:u',2,3)
-		db.set('link:attr',db.ser([2,3]),4)
+		db.set('link:attr',[2,3],4)
 		#db.link[2,3] = 'usr:knows:usr'
 		#print(set(db.link['usr:knows:usr',:5,'usr']))
 		#~ print(dict(db.items('usr')))
@@ -165,6 +156,7 @@ if __name__=="__main__":
 		#~ print(list(db.get_links('usr:knows:usr')))
 		#~ print(list(db.values('usr')))
 		#print(list(db.get_val_linked_to('usr:knows:usr',3,'usr')))
+		for x in db.conn.iterdump(): print(x)
 	if 0:
 		CNT = 1000000
 		t0=time()
