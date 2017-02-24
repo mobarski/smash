@@ -87,9 +87,14 @@ class NOHIST:
 
 class STAR:
 	"star schema interface"
-	def __init__(self): pass
-	def add_fact(self,star,dim,v):
-		self.set(star,self.ser(dim),v)
+	def __init__(self):
+		self.conn.execute('create table if not exists tkv_fact (t,k,v,ts)')
+		self.conn.execute('create index if not exists i_tkv_fact on tkv_fact (t,ts)')
+	def add_fact(self,t,dim,v):
+		ts = time()
+		key = self.ser(dim)
+		val = self.ser(v)
+		self.conn.execute('insert or replace into tkv_fact values (?,?,?,?)',(t,key,val,ts))
 	def star_join(self,dim,spec):
 		for t,k in zip(spec.split(' '),dim):
 			if t != '_':
