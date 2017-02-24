@@ -2,6 +2,7 @@ import sqlite3
 import pickle
 import json
 from time import time
+from itertools import chain
 
 
 """
@@ -18,17 +19,15 @@ class SERDE:
 	"serialization-deserialization interface"
 	def __init__(self,kind=''):
 		if kind=='':
-			ser = self.no_ser
-			de = self.no_de
+			self.ser = self.no_ser
+			self.de = self.no_de
 		elif kind=='pickle':
-			ser = self.pickle_ser
-			de = self.pickle_de
+			self.ser = self.pickle_ser
+			self.de = self.pickle_de
 			self.protocol = 3
 		elif kind=='json':
-			ser = self.json_ser
-			de = self.json_de
-		self.serialize = ser
-		self.deserialize = de
+			self.ser = self.json_ser
+			self.de = self.json_de
 	###
 	def json_ser(self,v):
 		return json.dumps(v)
@@ -46,32 +45,31 @@ class SERDE:
 		return v
 
 
-class LINK:
-	"link interface"
+class LINK1:
 	def __init__(self):
-		self.cursor.execute('create table if not exists tkv_link (link,k1,k2,ts)')
-		self.cursor.execute('create unique index if not exists i_tkv_link1 on tkv_link (link,k1,k2)')
-		self.cursor.execute('create index if not exists i_tkv_link2 on tkv_link (link,k2)')
+		pass
 	def add_link(self,link,k1,k2):
-		ts = time()
-		self.cursor.execute('insert or replace into tkv_link values (?,?,?,?)', (link,k1,k2,ts))
-	def get_linked(self,link,k1):
-		for x in self.cursor.execute('select k2 from tkv_link where link=? and k1=?',(link,k1)):
-			yield x[0]
-	def get_linked_to(self,link,k2):
-		for x in self.cursor.execute('select k1 from tkv_link where link=? and k2=?',(link,k2)):
-			yield x[0]
-	def get_links(self,link):
-		for x in self.cursor.execute('select k1,k2 from tkv_link where link=?',(link,)):
-			yield x
-	def delete_links(self,k,any=[],left=[],right=[]):
-		for link in any:
-			self.cursor.execute('delete from tkv_link where link=? and (k1=? or k2=?)',(link,k,k))
-		for link in left:
-			self.cursor.execute('delete from tkv_link where link=? and k1=?',(link,k))
-		for link in right:
-			self.cursor.execute('delete from tkv_link where link=? and k2=?',(link,k))
+		v = self.get(link,k1,set())
+		v.add(k2)
+		self.set(link,k1,v)
+	def get_links(self,link,k1,t=''):
+		return self.get(link,k1,set())
+	def get_linked(self,link,k1,t):
+		for k2 in self.get(link,k1,set()):
+			yield self.get(t,k2)
 
+class LINK:
+	def __init__(self): pass
+	def add_link(self,link,k1,k2):
+		v = set(self.get(link,k1,[]))
+		if k2 not in v:
+			v.add(k2)
+			self.set(link,k1,list(v))
+	def get_links(self,link,k1,t=''):
+		return self.get(link,k1,[])
+	def get_linked(self,link,k1,t):
+		for k2 in self.get(link,k1,set()):
+			yield self.get(t,k2)
 
 # TODO separate file + attach
 class HIST:
@@ -80,65 +78,64 @@ class HIST:
 		self.cursor.execute('create table if not exists tkv_hist (t,k,v,ts)')
 		self.cursor.execute('create index if not exists i_tkv_hist on tkv (t,k,ts)')
 	def set(self,t,k,v,ts):
-		val = self.serialize(v)
+		val = self.ser(v)
 		self.cursor.execute('insert into tkv_hist values (?,?,?,?)',(t,k,val,ts))
 class NOHIST:
 	def __init__(self): pass
 	def set(self,t,k,v,ts): pass
 
 
-# TODO
 class STAR:
 	"star schema interface"
-	def __init__(self):
-		self.cursor.execute('create table if not exists tkv_star (s,k1,k2,k3,k4,k5,k6,k7,k8,k9)')
-	def add_fact(self,star,*keys):
-		pass
+	def __init__(self): pass
+	def add_fact(self,star,dim,v):
+		self.set(star,self.ser(dim),v)
+	def star_join(self,dim,spec):
+		for t,k in zip(spec.split(' '),dim):
+			if t != '_':
+				yield self.get(t,k)
 
 
-# TODO HIST,SERDE mixin
-class TKV(SERDE,LINK,NOHIST):
+# TODO HIST mixin
+class TKV(SERDE,LINK,NOHIST,STAR):
 	"Table-Key-Value database"
 	def __init__(self,path=':memory:',serde='pickle'):
-		self.connection = sqlite3.connect(path)
-		self.cursor = self.connection.cursor()
-		self.cursor.execute('create table if not exists tkv (t,k,v,ts)')
-		self.cursor.execute('create unique index if not exists i_tkv on tkv (t,k)')
+		self.path = path
+		self.conn = sqlite3.connect(path)
+		self.conn.execute('create table if not exists tkv (t,k,v,ts)')
+		self.conn.execute('create unique index if not exists i_tkv on tkv (t,k)')
 		SERDE.__init__(self,serde)
-		LINK.__init__(self)
 		NOHIST.__init__(self)
+		LINK.__init__(self)
+		STAR.__init__(self)
 	### GET ###
 	def get(self,t,k,default=None):
-		results = self.cursor.execute('select v from tkv where t=? and k=?',(t,k))
+		results = self.conn.execute('select v from tkv where t=? and k=?',(t,k))
 		x = results.fetchone()
-		return self.deserialize(x[0]) if x else default
-	def __getitem__(self,x):
-		return self.get(*x)
+		return self.de(x[0]) if x else default
 	### SET ###
 	def set(self,t,k,v):
 		ts = time()
-		val = self.serialize(v)
-		self.cursor.execute('insert or replace into tkv values (?,?,?,?)',(t,k,val,ts))
+		val = self.ser(v)
+		self.conn.execute('insert or replace into tkv values (?,?,?,?)',(t,k,val,ts))
 		super().set(t,k,v,ts)
-	def __setitem__(self,x,v):
-		self.set(*x,v)
 	### ITER ###
 	def keys(self,t):
-		for k in self.cursor.execute('select distinct k from tkv where t=?',(t,)):
+		for k in self.conn.execute('select k from tkv where t=?',(t,)):
 			yield k[0]
 	def values(self,t):
-		for v in self.cursor.execute('select distinct v from tkv where t=?',(t,)):
-			yield self.deserialize(v[0])
+		for v in self.conn.execute('select v from tkv where t=?',(t,)):
+			yield self.de(v[0])
 	def items(self,t):
-		for k,v in self.cursor.execute('select distinct k,v from tkv where t=?',(t,)):
-			yield k,self.deserialize(v)
+		for k,v in self.conn.execute('select k,v from tkv where t=?',(t,)):
+			yield k,self.de(v)
 	### OTHER ###
 	def delete(self,t,k):
-		self.cursor.execute('delete from tkv where t=? and k=?',(t,k))
+		self.conn.execute('delete from tkv where t=? and k=?',(t,k))
 	def truncate(self,t):
-		self.cursor.execute('delete from tkv where t=?',(t,))
+		self.conn.execute('delete from tkv where t=?',(t,))
 	def commit(self):
-		self.connection.commit()
+		self.conn.commit()
 	### ### ###
 connect = TKV
 
@@ -149,17 +146,20 @@ if __name__=="__main__":
 		db.set('usr',1,'bob')
 		db.set('usr',2,'alice')
 		db.set('usr',3,'charlie')
-		db.add_link('usr:knows:usr',1,2)
-		db.add_link('usr:knows:usr',1,3)
-		db.add_link('usr:knows:usr',2,3)
+		db.add_link('u:knows:u',1,2)
+		db.add_link('u:knows:u',1,3)
+		db.add_link('u:knows:u',2,3)
+		db.set('link:attr',db.ser([2,3]),4)
+		#db.link[2,3] = 'usr:knows:usr'
+		#print(set(db.link['usr:knows:usr',:5,'usr']))
 		#~ print(dict(db.items('usr')))
-		#~ print(list(db.get_linked('usr:knows:usr',1)))
+		print(list(db.get_linked('u:knows:u',1,'usr')))
+		#print(list(db.star_join([1,2,3,4,5],'usr _ usr')))
 		#~ print(list(db.get_links('usr:knows:usr')))
 		#~ db.delete_links(2,left=['usr:knows:usr'])
 		#~ print(list(db.get_links('usr:knows:usr')))
 		#~ print(list(db.values('usr')))
-		db['usr',4] = 'david'
-		print(db['usr',4])
+		#print(list(db.get_val_linked_to('usr:knows:usr',3,'usr')))
 	if 0:
 		CNT = 1000000
 		t0=time()
