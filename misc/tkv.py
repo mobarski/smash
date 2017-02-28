@@ -81,6 +81,7 @@ class LINK: # dict based
 
 
 # TODO separate file + attach
+# TODO query
 class HIST:
 	"history interface"
 	def __init__(self,kind='no'):
@@ -117,7 +118,7 @@ class STAR:
 		part = self.ser(p)
 		val = self.ser(v)
 		self.conn.execute('insert into tpv values (?,?,?)',(t,part,val))
-	def all(self,t,p=''):
+	def all(self,t,p=''): # TODO rename to part, and add all method for accessing all items
 		part = self.ser(p)
 		for x in  self.conn.execute('select v from tpv where t=? and p=?',(t,part)):
 			yield self.de(x[0])
@@ -145,8 +146,39 @@ class STAR:
 		# TODO ??? yield func(k_list,v)
 	### AUX - STAR ###
 
+class DICT:
+	"dict-like object interface"
+	def tab_as_dict(self,t):
+		class KV:
+			def __getitem__(s,k): return self.get(t,k)
+			def __setitem__(s,k,v): return self.set(t,k,v)
+			def __len__(s): return self.len(t)
+			def keys(s): return self.keys(t)
+			def values(s): return self.values(t)
+			def items(s): return self.items(t)
+		return KV()
+	def link_as_dict(self,link,default=None):
+		class KV:
+			def __getitem__(s,k): return self.get_link(link,k[0],k[1],default)
+			def __setitem__(s,k,v): return self.set_link(link,k[0],k[1],v)
+			# TODO: change to single link iters
+			def __len__(s): return self.len(link)
+			def keys(s): return self.keys(link)
+			def values(s): return self.values(link)
+			def items(s): return self.items(link)
+		return KV()
+	def fact_as_dict(self,t,p=''):
+		class KV:
+			#def __getitem__(s,k): return self.get_link(link,k[0],k[1],default)
+			def __setitem__(s,k,v): return self.add_fact(t,k,v,p)
+			#def __len__(s): return self.len(link)
+			#def keys(s): return self.keys(link)
+			#def values(s): return self.values(link)
+			def items(s): return self.all(t,p)
+		return KV()
 
-class TKV(SERDE,LINK,HIST,STAR):
+
+class TKV(SERDE,LINK,HIST,STAR,DICT):
 	"Table-Key-Value database"
 	def __init__(self,path=':memory:',serde='json',hist='no'):
 		self.path = path
@@ -157,6 +189,7 @@ class TKV(SERDE,LINK,HIST,STAR):
 		HIST.__init__(self,hist)
 		LINK.__init__(self)
 		STAR.__init__(self)
+		DICT.__init__(self)
 	### GET ###
 	def get(self,t,k,default=None):
 		key=self.ser(k)
@@ -179,7 +212,10 @@ class TKV(SERDE,LINK,HIST,STAR):
 			yield self.de(v[0])
 	def items(self,t):
 		for k,v in self.conn.execute('select k,v from tkv where t=?',(t,)):
-			yield k,self.de(v)
+			yield self.de(k),self.de(v)
+	def len(self,t):
+		for x in self.conn.execute('select count(1) from tkv where t=?',(t,)):
+			return x[0]
 	### OTHER ###
 	def delete(self,t,k):
 		key=self.ser(k)
@@ -195,7 +231,34 @@ connect = TKV
 
 if __name__=="__main__":
 	db = connect(serde='pickle',hist='tab')
-	if 1: # TEST star
+	if 1: # TEST dict
+		if 0:
+			usr = db.tab_as_dict('usr')
+			usr[1] = 'alice'
+			usr[2] = 'bob'
+			usr[3] = 'charlie'
+			print(list(db.items('usr')))
+			print(len(usr))
+		if 0:
+			likes = db.link_as_dict('likes',0)
+			likes[1,1] = 1
+			likes[1,3] = -1
+			likes[2,2] = 1
+			likes[3,3] = 1
+			print(likes[1,5])
+			print(list(likes.items()))
+		if 1:
+			vv = db.fact_as_dict('vidview')
+			vv[1,1,1] = 1
+			vv[1,2,1] = 2
+			vv[1,3,3] = 3
+			vv[2,2,2] = 4
+			vv[3,1,2] = 5
+			vv[3,2,3] = 6
+			print(list(vv.items()))
+			print(list(db.all('vidview')))
+			
+	if 0: # TEST star
 		db.set('usr',1,'alice')
 		db.set('usr',2,'bob')
 		db.set('usr',3,'charlie')
@@ -205,12 +268,14 @@ if __name__=="__main__":
 		db.set('device',1,'pc')
 		db.set('device',2,'phone')
 		db.set('device',3,'tablet')
+		###
 		db.add_fact('vidview',[1,1,1],1)
 		db.add_fact('vidview',[1,2,1],2)
 		db.add_fact('vidview',[1,3,3],3)
 		db.add_fact('vidview',[2,2,2],4)
 		db.add_fact('vidview',[3,1,2],5)
 		db.add_fact('vidview',[3,2,3],6)
+		###
 		print(list(db.star_filter('vidview','usr',[lambda x:x in ['bob','charlie']])))
 		print(list(db.star_filter('vidview','usr',[lambda x:x=='alice'])))
 		print(list(db.star_filter('vidview','usr',[lambda x:1])))
