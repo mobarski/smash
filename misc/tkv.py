@@ -107,7 +107,7 @@ class HIST:
 	def no_set(self,t,k,v,ts): pass
 	def no_del(self,t,k): pass
 
-# TODO
+
 class STAR:
 	"star schema interface via Table-Partition-Value database"
 	def __init__(self):
@@ -117,29 +117,32 @@ class STAR:
 		part = self.ser(p)
 		val = self.ser(v)
 		self.conn.execute('insert into tpv values (?,?,?)',(t,part,val))
-	def all(self,t,p):
+	def all(self,t,p=''):
 		part = self.ser(p)
-		for v in  self.conn.execute('select v from tpv where t=? and p=?',(t,part)):
-			yield v
+		for x in  self.conn.execute('select v from tpv where t=? and p=?',(t,part)):
+			yield self.de(x[0])
 	### AUX - TPV ###
 	def drop(self,t,p):
 		part = self.ser(p)
 		self.conn.execute('delete from tpv where t=? and p=?',(t,part))
 	### CORE - STAR ###
 	def add_fact(self,t,k_list,v,p=''):
-		self.add(p,[list(k_list),v])
+		self.add(t,p,[list(k_list),v])
 	def star_join(self,k_list,spec):
 		for t,k in zip(spec.split(' '),k_list):
 			if t != '_':
 				yield self.get(t,k)
-	def star_filter(self,spec,f_list=[],p=''): # TEST
-		for k_list,v in self.all(p):
+	def star_filter(self,star,spec,f_list=[],p=''): # TEST
+		for k_list,v in self.all(star,p):
 			ok = True
 			for d,f in zip(self.star_join(k_list,spec),f_list):
 				if not f(d):
 					ok = False
 					break
-			if ok: yield v
+			if ok:
+				yield k_list,v
+		# TODO ??? f.func_code.co_varnames[0]
+		# TODO ??? yield func(k_list,v)
 	### AUX - STAR ###
 
 
@@ -196,12 +199,27 @@ if __name__=="__main__":
 		db.set('usr',1,'alice')
 		db.set('usr',2,'bob')
 		db.set('usr',3,'charlie')
-		db.set('asset',1,'')
-		db.set('asset',2,'')
-		db.set('asset',3,'')
-		db.set('',1,'')
-		db.set('',2,'')
-		db.set('',3,'')
+		db.set('asset',1,'aliens')
+		db.set('asset',2,'mad max')
+		db.set('asset',3,'star wars')
+		db.set('device',1,'pc')
+		db.set('device',2,'phone')
+		db.set('device',3,'tablet')
+		db.add_fact('vidview',[1,1,1],1)
+		db.add_fact('vidview',[1,2,1],2)
+		db.add_fact('vidview',[1,3,3],3)
+		db.add_fact('vidview',[2,2,2],4)
+		db.add_fact('vidview',[3,1,2],5)
+		db.add_fact('vidview',[3,2,3],6)
+		print(list(db.star_filter('vidview','usr',[lambda x:x in ['bob','charlie']])))
+		print(list(db.star_filter('vidview','usr',[lambda x:x=='alice'])))
+		print(list(db.star_filter('vidview','usr',[lambda x:1])))
+		print(list(db.star_filter('vidview','usr',[lambda x:0])))
+		print(list(db.star_filter('vidview','usr',[])))
+		print(lambda x:x.usr in ['bob',''] and x.dev=='pc')
+		print(lambda x: x['usr'] in ['bob',''] and x['dev']=='pc')
+		print("x.usr in ['bob',''] and x.dev=='pc'")
+		#print(list(db.star_filter('vidview','usr',lambda usr:usr in ['bob','charlie']])))
 	if 0:
 		db.set('usr',1,dict(name='bob'))
 		db.set('usr',2,dict(name='alice'))
