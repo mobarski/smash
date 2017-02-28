@@ -109,19 +109,38 @@ class HIST:
 
 # TODO
 class STAR:
-	"star schema interface"
+	"star schema interface via Table-Partition-Value database"
 	def __init__(self):
-		self.conn.execute('create table if not exists tkv_fact (t,k,v,ts)')
-		self.conn.execute('create index if not exists i_tkv_fact on tkv_fact (t,ts)')
-	def add_fact(self,t,dim,v):
-		ts = time()
-		key = self.ser(dim)
+		self.conn.execute('create table if not exists tpv (t,p,v)')
+		self.conn.execute('create index if not exists i_tpv on tpv (t,p)')
+	def add(self,t,p,v):
+		part = self.ser(p)
 		val = self.ser(v)
-		self.conn.execute('insert or replace into tkv_fact values (?,?,?,?)',(t,key,val,ts))
-	def star_join(self,dim,spec):
-		for t,k in zip(spec.split(' '),dim):
+		self.conn.execute('insert into tpv values (?,?,?)',(t,part,val))
+	def all(self,t,p):
+		part = self.ser(p)
+		for v in  self.conn.execute('select v from tpv where t=? and p=?',(t,part)):
+			yield v
+	### AUX - TPV ###
+	def drop(self,t,p):
+		part = self.ser(p)
+		self.conn.execute('delete from tpv where t=? and p=?',(t,part))
+	### CORE - STAR ###
+	def add_fact(self,t,k_list,v,p=''):
+		self.add(p,[list(k_list),v])
+	def star_join(self,k_list,spec):
+		for t,k in zip(spec.split(' '),k_list):
 			if t != '_':
 				yield self.get(t,k)
+	def star_filter(self,spec,f_list=[],p=''): # TEST
+		for k_list,v in self.all(p):
+			ok = True
+			for d,f in zip(self.star_join(k_list,spec),f_list):
+				if not f(d):
+					ok = False
+					break
+			if ok: yield v
+	### AUX - STAR ###
 
 
 class TKV(SERDE,LINK,HIST,STAR):
@@ -186,7 +205,7 @@ if __name__=="__main__":
 		#~ print(dict(db.items('usr')))
 		print(list(db.get_links('u:knows:u',1).items()))
 		print(list(db.get_linked('u:knows:u',1,'usr')))
-		#print(list(db.star_join([1,2,3,4,5],'usr _ usr')))
+		print(list(db.star_join([1,2,3,4,5],'usr _ usr')))
 		#~ print(list(db.get_links('usr:knows:usr')))
 		#~ db.delete_links(2,left=['usr:knows:usr'])
 		#~ print(list(db.get_links('usr:knows:usr')))
