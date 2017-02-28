@@ -192,7 +192,17 @@ connect = TKV
 
 if __name__=="__main__":
 	db = connect(serde='pickle',hist='tab')
-	if 1:
+	if 1: # TEST star
+		db.set('usr',1,'alice')
+		db.set('usr',2,'bob')
+		db.set('usr',3,'charlie')
+		db.set('asset',1,'')
+		db.set('asset',2,'')
+		db.set('asset',3,'')
+		db.set('',1,'')
+		db.set('',2,'')
+		db.set('',3,'')
+	if 0:
 		db.set('usr',1,dict(name='bob'))
 		db.set('usr',2,dict(name='alice'))
 		db.set('usr',3,dict(name='charlie'))
@@ -224,4 +234,3 @@ if __name__=="__main__":
 			db.get('test',i)
 		dt = time()-t0
 		print("db.get {0} elements -> {1:0.1f}s {2:0.0f}/s".format(CNT,dt,CNT/dt))
-
