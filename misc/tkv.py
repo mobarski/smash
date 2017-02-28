@@ -10,6 +10,7 @@ NoSQL interface to SQLite
 """
 
 # TODO insert old values into history table
+# TODO remove ser(key) ???
 
 # PERF no serialization vs pickle -> 1.5 x writes per second, 1.1 x reads per second
 # PERF json vs pickle -> 1.3 writes per second, 0.6 reads per second
@@ -25,7 +26,7 @@ class SERDE:
 			self.ser = self.pickle_ser
 			self.de = self.pickle_de
 			self.protocol = 3
-		elif kind=='json':
+		elif kind=='json': # ERROR with int keys
 			self.ser = self.json_ser
 			self.de = self.json_de
 	###
@@ -45,19 +46,53 @@ class SERDE:
 		return v
 
 
-class LINK:
+class LINK1: # set based
 	def __init__(self): pass
-	def add_link(self,link,k1,k2):
-		v = set(self.get(link,k1,[]))
-		if k2 not in v:
-			v.add(k2)
-			self.set(link,k1,list(v))
-	def get_links(self,link,k1,t=''):
+	def set_link(self,link,k1,k2):
+		keys = set(self.get(link,k1,[]))
+		if k2 not in keys:
+			keys.add(k2)
+			self.set(link,k1,list(keys))
+	def get_links(self,link,k1,t=''): # t='' for same api as get_linked
 		return self.get(link,k1,[])
 	def get_linked(self,link,k1,t):
 		for k2 in self.get(link,k1,set()):
 			yield self.get(t,k2)
 
+# doesn't work well with json
+class LINK2: # dict based
+	def __init__(self): pass
+	### CORE ###
+	def set_link(self,link,k1,k2,v=1):
+		d = self.get(link,k1,{})
+		if k2 not in d or d[k2]!=v:
+			d[k2] = v
+			self.set(link,k1,d)
+	def get_links(self,link,k1,t=''): # t='' for same api as get_linked
+		return self.get(link,k1,{})
+	def get_linked(self,link,k1,t):
+		for k2 in self.get(link,k1,{}).keys():
+			yield self.get(t,k2)
+	### AUX 
+	def set_links(self,link,k1,links_dict):
+		d = self.get(link,k1,{})
+		d.update(links_dict)
+		self.set(link,k1,d)
+	def get_link(self,link,k1,k2,default=None):
+		d = self.get(link,k1,{})
+		return d.get(k2,default)
+	def del_link(self,link,k1,k2):
+		d = self.get(link,k1,{})
+		if k2 in d:
+			del d[k2]
+			self.set(link,k1,d)
+	def del_links(self,link,k1,k_list):
+		d = self.get(link,k1,{})
+		for k2 in k_list:
+			if k2 in d: del d[k2]
+		elf.set(link,k1,d)
+
+LINK=LINK2
 
 # TODO separate file + attach
 class HIST:
@@ -137,18 +172,19 @@ connect = TKV
 
 
 if __name__=="__main__":
-	db = connect()
+	db = connect(serde='pickle')
 	if 1:
-		db.set('usr',1,'bob')
-		db.set('usr',2,'alice')
-		db.set('usr',3,'charlie')
-		db.add_link('u:knows:u',1,2)
-		db.add_link('u:knows:u',1,3)
-		db.add_link('u:knows:u',2,3)
-		db.set('link:attr',[2,3],4)
+		db.set('usr',1,dict(name='bob'))
+		db.set('usr',2,dict(name='alice'))
+		db.set('usr',3,dict(name='charlie'))
+		db.set_link('u:knows:u',1,2)
+		db.set_link('u:knows:u',1,3,{'since':'2001'})
+		db.set_link('u:knows:u',2,3)
+		#db.set('link:attr',[2,3],4)
 		#db.link[2,3] = 'usr:knows:usr'
 		#print(set(db.link['usr:knows:usr',:5,'usr']))
 		#~ print(dict(db.items('usr')))
+		print(list(db.get_links('u:knows:u',1).items()))
 		print(list(db.get_linked('u:knows:u',1,'usr')))
 		#print(list(db.star_join([1,2,3,4,5],'usr _ usr')))
 		#~ print(list(db.get_links('usr:knows:usr')))
@@ -156,7 +192,7 @@ if __name__=="__main__":
 		#~ print(list(db.get_links('usr:knows:usr')))
 		#~ print(list(db.values('usr')))
 		#print(list(db.get_val_linked_to('usr:knows:usr',3,'usr')))
-		for x in db.conn.iterdump(): print(x)
+		#for x in db.conn.iterdump(): print(x)
 	if 0:
 		CNT = 1000000
 		t0=time()
