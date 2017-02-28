@@ -45,22 +45,9 @@ class SERDE:
 	def no_de(self,v):
 		return v
 
-
-class LINK1: # set based
-	def __init__(self): pass
-	def set_link(self,link,k1,k2):
-		keys = set(self.get(link,k1,[]))
-		if k2 not in keys:
-			keys.add(k2)
-			self.set(link,k1,list(keys))
-	def get_links(self,link,k1,t=''): # t='' for same api as get_linked
-		return self.get(link,k1,[])
-	def get_linked(self,link,k1,t):
-		for k2 in self.get(link,k1,set()):
-			yield self.get(t,k2)
-
-# doesn't work well with json
-class LINK2: # dict based
+# doesn't work well with json -> int keys are turned into str keys
+class LINK: # dict based
+	"link interface for graph databases"
 	def __init__(self): pass
 	### CORE ###
 	def set_link(self,link,k1,k2,v=1):
@@ -92,20 +79,33 @@ class LINK2: # dict based
 			if k2 in d: del d[k2]
 		elf.set(link,k1,d)
 
-LINK=LINK2
 
 # TODO separate file + attach
 class HIST:
 	"history interface"
-	def __init__(self):
-		self.cursor.execute('create table if not exists tkv_hist (t,k,v,ts)')
-		self.cursor.execute('create index if not exists i_tkv_hist on tkv (t,k,ts)')
-	def set(self,t,k,v,ts):
+	def __init__(self,kind='no'):
+		if kind=='no':
+			self.hist_set = self.no_set
+			self.hist_del = self.no_del
+			self.no_init()
+		elif kind=='tab':
+			self.hist_set = self.tab_set
+			self.hist_del = self.tab_del
+			self.tab_init()
+	###
+	def tab_init(self):
+		self.conn.execute('create table if not exists tkv_hist (t,op,k,v,ts)')
+		self.conn.execute('create index if not exists i_tkv_hist on tkv_hist (t,op,k,ts)')
+	def tab_set(self,t,k,v,ts):
 		val = self.ser(v)
-		self.cursor.execute('insert into tkv_hist values (?,?,?,?)',(t,k,val,ts))
-class NOHIST:
-	def __init__(self): pass
-	def set(self,t,k,v,ts): pass
+		self.conn.execute('insert into tkv_hist values (?,?,?,?,?)',(t,'set',k,val,ts))
+	def tab_del(self,t,k):
+		ts = time()
+		self.conn.execute('insert into tkv_hist values (?,?,?,?,?)',(t,'del',k,'',ts))
+	###
+	def no_init(self): pass
+	def no_set(self,t,k,v,ts): pass
+	def no_del(self,t,k): pass
 
 # TODO
 class STAR:
@@ -124,16 +124,15 @@ class STAR:
 				yield self.get(t,k)
 
 
-# TODO HIST mixin
-class TKV(SERDE,LINK,NOHIST,STAR):
+class TKV(SERDE,LINK,HIST,STAR):
 	"Table-Key-Value database"
-	def __init__(self,path=':memory:',serde='json'):
+	def __init__(self,path=':memory:',serde='json',hist='no'):
 		self.path = path
 		self.conn = sqlite3.connect(path)
 		self.conn.execute('create table if not exists tkv (t,k,v,ts)')
 		self.conn.execute('create unique index if not exists i_tkv on tkv (t,k)')
 		SERDE.__init__(self,serde)
-		NOHIST.__init__(self)
+		HIST.__init__(self,hist)
 		LINK.__init__(self)
 		STAR.__init__(self)
 	### GET ###
@@ -148,7 +147,7 @@ class TKV(SERDE,LINK,NOHIST,STAR):
 		key=self.ser(k)
 		val = self.ser(v)
 		self.conn.execute('insert or replace into tkv values (?,?,?,?)',(t,key,val,ts))
-		super().set(t,k,v,ts)
+		self.hist_set(t,k,v,ts)
 	### ITER ###
 	def keys(self,t):
 		for k in self.conn.execute('select k from tkv where t=?',(t,)):
@@ -163,6 +162,7 @@ class TKV(SERDE,LINK,NOHIST,STAR):
 	def delete(self,t,k):
 		key=self.ser(k)
 		self.conn.execute('delete from tkv where t=? and k=?',(t,key))
+		self.hist_del(t,k)
 	def truncate(self,t):
 		self.conn.execute('delete from tkv where t=?',(t,))
 	def commit(self):
@@ -172,7 +172,7 @@ connect = TKV
 
 
 if __name__=="__main__":
-	db = connect(serde='pickle')
+	db = connect(serde='pickle',hist='tab')
 	if 1:
 		db.set('usr',1,dict(name='bob'))
 		db.set('usr',2,dict(name='alice'))
