@@ -26,14 +26,28 @@ class SERDE:
 			self.ser = self.pickle_ser
 			self.de = self.pickle_de
 			self.protocol = 3
-		elif kind=='json': # ERROR with int keys
+		elif kind=='json':
 			self.ser = self.json_ser
 			self.de = self.json_de
+	### only first level of dict keys is fixed
+	def json1_ser(self,v):
+		if type(v)==dict:
+			val = ['dict', list(v.items())]
+		else:
+			val = v
+		return json.dumps(val,separators=(',',':'))
+	def json1_de(self,v):
+		val = json.loads(v)
+		if type(val)==list and len(val)==2 and val[0]=='dict':
+			return dict(val[1])
+		else:
+			return val
 	###
 	def json_ser(self,v):
-		return json.dumps(v)
+		return json.dumps(v,separators=(',',':'))
 	def json_de(self,v):
-		return json.loads(v)
+		val = json.loads(v)
+		return _fix_json_keys(val)
 	###
 	def pickle_ser(self,v):
 		return pickle.dumps(v,self.protocol)
@@ -44,6 +58,16 @@ class SERDE:
 		return v
 	def no_de(self,v):
 		return v
+def _fix_json_keys(val):
+	if type(val)==list:
+		return list(map(_fix_json_keys,val))
+	elif type(val)==dict:
+		if len(val)>0 and list(val.keys())[0].isnumeric():
+			return dict(zip(map(int,val.keys()),map(_fix_json_keys,val.values())))
+		else:
+			return dict(zip(val.keys(),map(_fix_json_keys,val.values())))
+	return val
+
 
 # doesn't work well with json -> int keys are turned into str keys
 class LINK: # dict based
@@ -230,16 +254,16 @@ connect = TKV
 
 
 if __name__=="__main__":
-	db = connect(serde='pickle',hist='tab')
+	db = connect(serde='json',hist='tab')
 	if 1: # TEST dict
-		if 0:
+		if 1:
 			usr = db.tab_as_dict('usr')
 			usr[1] = 'alice'
 			usr[2] = 'bob'
 			usr[3] = 'charlie'
 			print(list(db.items('usr')))
 			print(len(usr))
-		if 0:
+		if 1:
 			likes = db.link_as_dict('likes',0)
 			likes[1,1] = 1
 			likes[1,3] = -1
@@ -247,7 +271,7 @@ if __name__=="__main__":
 			likes[3,3] = 1
 			print(likes[1,5])
 			print(list(likes.items()))
-		if 1:
+		if 0:
 			vv = db.fact_as_dict('vidview')
 			vv[1,1,1] = 1
 			vv[1,2,1] = 2
