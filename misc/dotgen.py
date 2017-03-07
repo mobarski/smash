@@ -87,7 +87,8 @@ def get_label(node,info,direction):
 def get_href(node,link):
 	n = node
 	if not link: return ''
-	if link=='src': return '/tabs/{0}'.format(n.src) if n.src else ''
+	#if link=='src': return '/tabs/{0}'.format(n.src) if n.src else ''
+	if link=='src': return '/tab/{0}.{1}'.format(n.src_db,n.src) if n.src and n.src_db else ''
 	if link=='bg': return '/term/{0}'.format(n.bg) if n.bg else ''
 
 # TODO
@@ -103,16 +104,28 @@ def get_edge_style(edge,notation):
 	if notation=='simple':
 		if "o" in rel: out += " style=dashed"
 		return out
-	if notation=='obarski':
+	if notation=='obarski1':
 		if "o" in rel: out += " style=dashed"
 		if "m" in rel: out += " arrowhead=dot"
 		elif "g" in rel: out += " arrowhead=onormal"
 		elif "a" in rel: out += " arrowhead=odiamond"
-		else: out += " arrowhead=odot arrowsize=0.5" # XXX 
+		#else: out += " arrowhead=odot arrowsize=0.5" # XXX 
 		if edge.srcfk:
 			#out += ' label="{0}"'.format(edge.srcfk) # TODO label vs xlabel
 			pass
 		# not rel2 support?
+		return out
+	if notation=='obarski1b':
+		if "o" in rel: out += " style=dashed"
+		if "m" in rel: out += " arrowtail=odiamond dir=back"
+		elif "g" in rel: out += " arrowhead=onormal"
+		elif "a" in rel: out += " arrowhead=odiamond"
+		return out
+	if notation=='obarski1c':
+		if "o" in rel: out += " style=dashed"
+		if "m" in rel: out += " arrowtail=dot dir=back"
+		elif "g" in rel: out += " arrowhead=onormal"
+		elif "a" in rel: out += " arrowhead=odiamond"
 		return out
 	if notation=='obarski2':
 		if "o" in rel and "m" not in rel: out += " arrowhead=odot"
@@ -126,6 +139,12 @@ def get_edge_style(edge,notation):
 		if "m" in rel2 and "o" not in rel2: out += " arrowtail=dot"
 		if "g" in rel2: out += " arrowtail=onormal"
 		if "a" in rel2: out += " arrowtail=odiamond"		
+		return out
+	if notation=='uml2':
+		#if "o" in rel: out += " style=dashed"
+		if "m" in rel: out += " arrowtail=odiamond dir=back"
+		elif "g" in rel: out += " arrowhead=onormal"
+		elif "a" in rel: out += " arrowhead=odiamond"
 		return out
 	if notation=='omt':
 		if "o" in rel: return "arrowhead=odot"
@@ -199,11 +218,39 @@ def load(filename, columns, skip_header=True, dlm='\t', rec='rec'):
 		rec_line = ""
 	return out
 
-nodes = load('data/conceptual-n.xls',"area graph cluster cluster2 node label tags rank count src bg",rec='v')
-edges = load('data/conceptual-e.xls',"area graph node node2 tags relation relation2 srcfk srcfk2",rec='e')
+def node_inheritance():
+	for n in nodes.values():
+		if n.model=='conceptual': continue
+		parent_k = ('conceptual',n.area,n.node)
+		if parent_k not in nodes: continue
+		parent = nodes[parent_k]
+		if not n.cluster: n=n._replace(cluster=parent.cluster)
+		if not n.cluster2: n=n._replace(cluster2=parent.cluster2)
+		if not n.label: n=n._replace(label=parent.label)
+		if not n.tags: n=n._replace(tags=parent.tags)
+		if not n.rank: n=n._replace(rank=parent.rank)
+		if not n.count: n=n._replace(count=parent.count)
+		if not n.src: n=n._replace(src=parent.src)
+		if not n.src_db: n=n._replace(src_db=parent.src_db)
+		if not n.src_col: n=n._replace(src_col=parent.src_col)
+		if not n.bg: n=n._replace(bg=parent.bg)
+		k = (n.model,n.area,n.node)
+		nodes[k] = n
+
+def reload():
+	global nodes
+	global edges
+	node_list = load('data/conceptual-n.xls',"model area cluster cluster2 node label tags rank count src src_db src_col bg",rec='v')
+	edges = load('data/conceptual-e.xls',"model area node node2 tags relation relation2 srcfk srcfk2",rec='e')
+	nodes = {}
+	for n in node_list:
+		k = (n.model, n.area, n.node)
+		nodes[k] = n
+	node_inheritance()
+reload()
 
 # TODO rename style to colors
-def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link='',notation='',question='',reverse_clusters=[],rank=''):
+def generate(filename, cluster=True, direction='TD', style='', value='', hint='', info='', filter_type='omit', filter_clusters=[],link='',notation='',question='',reverse_clusters=[],rank='',model='',area=''):
 	# generator
 	sys.stdout=open(filename,'w')
 	print('strict digraph {')
@@ -223,7 +270,9 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 	cluster_by_node = defaultdict(str)
 	reversed_edges= defaultdict(set)
 	prev_cluster=''
-	for n in nodes:
+	for n in nodes.values():
+		if n.model != model: continue
+		if n.area != area: continue
 		cluster_by_node[n.node] = n.cluster
 		if question=='no' and 'question' in n.tags: continue
 		if filter_type=='omit' and n.cluster and n.cluster in filter_clusters: continue
@@ -255,6 +304,8 @@ def generate(filename, cluster=True, direction='TD', style='', value='', hint=''
 
 	# edges
 	for e in edges:
+		if e.model != model: continue
+		if e.area != area: continue
 		if (e.node in visible_nodes and e.node2 in visible_nodes) or 'question' in e.tags:
 			s = get_edge_style(e,notation)
 			e_style = '[{0}]'.format(s) if s else ''

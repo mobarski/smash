@@ -28,8 +28,11 @@ def concept3():
 	question=f.get('question','')
 	reverse_clusters=[v for k,v in f.items() if k.startswith('reverse_')]
 	rank=f.get('rank','')
+	model=f.get('model','')
+	area=f.get('area','')
 	#print(locals()) # XXX
-	dotgen.generate('tmp/x.dot',direction=direction,cluster=cluster,style=style,value=value,hint=hint,info=info,filter_type=filter_type,filter_clusters=filter_clusters,link=link,notation=notation,question=question,reverse_clusters=reverse_clusters,rank=rank)
+	dotgen.reload()
+	dotgen.generate('tmp/x.dot',direction=direction,cluster=cluster,style=style,value=value,hint=hint,info=info,filter_type=filter_type,filter_clusters=filter_clusters,link=link,notation=notation,question=question,reverse_clusters=reverse_clusters,rank=rank,model=model,area=area)
 	if action=="show":
 		dot.render('tmp/x.dot','tmp/x','svg')
 		bf = open('tmp/x.svg','r')

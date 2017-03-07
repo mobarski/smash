@@ -109,7 +109,7 @@ class LINK: # dict based
 class HIST:
 	"history interface"
 	def __init__(self,kind='no'):
-		if kind=='no':
+		if kind in ('','no','none'):
 			self.hist_set = self.no_set
 			self.hist_del = self.no_del
 			self.no_init()
@@ -117,6 +117,11 @@ class HIST:
 			self.hist_set = self.tab_set
 			self.hist_del = self.tab_del
 			self.tab_init()
+		elif kind.startswith('file:'):
+			self.hist_set = self.file_set
+			self.hist_del = self.file_del
+			filepath = kind[5:]
+			self.file_init(filepath)
 	###
 	def tab_init(self):
 		self.conn.execute('create table if not exists tkv_hist (t,op,k,v,ts)')
@@ -131,7 +136,20 @@ class HIST:
 	def no_init(self): pass
 	def no_set(self,t,k,v,ts): pass
 	def no_del(self,t,k): pass
-
+	###
+	def file_init(self,filepath):
+		self.hist_f = open(filepath,'a')
+	def file_set(self,t,k,v,ts):
+		val = self.ser(v)
+		rec = t,'set',k,val,ts
+		rec_ser = str(rec)
+		self.hist_f.write(rec_ser+'\n')
+		self.hist_f.flush()
+	def file_del(self,t,k):
+		rec = t,'del',k,'',ts
+		rec_ser = str(rec)
+		self.hist_f.write(rec_ser+'\n')
+		self.hist_f.flush()
 
 class STAR:
 	"star schema interface via Table-Partition-Value database"
@@ -254,7 +272,7 @@ connect = TKV
 
 
 if __name__=="__main__":
-	db = connect(serde='json',hist='tab')
+	db = connect(serde='json',hist='file:hist.txt')
 	if 1: # TEST dict
 		if 1:
 			usr = db.tab_as_dict('usr')
