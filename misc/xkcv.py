@@ -12,6 +12,8 @@ class XKCV:
 	def attach(self,t,path=''):
 		p = path if path else t+'.db'
 		self.conn.execute("attach database ? as ?",(p,t))
+	def detach(self,t):
+		self.conn.execute("detach database ?",(t,))
 	def create(self,t,path=''):
 		self.attach(t,path)
 		self.conn.execute('create table if not exists {0}.xkcv (k,c,v)'.format(t))
