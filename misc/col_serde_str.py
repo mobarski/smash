@@ -57,6 +57,76 @@ def decode(data):
 		prev = out[-1]
 	return out
 
+#######################################
+
+from collections import defaultdict
+
+def prefix_len(a,b):
+	i = 0
+	for ai,bi in zip(a,b):
+		if ai==bi: i += 1
+		else:
+			return i
+	return i
+
+def encode(rows):
+	out = ""
+	
+	prefix = {'':0}
+	prev = ''
+	freq = defaultdict(int)
+	for row in sorted(rows):
+		prefix[row] = prefix_len(row,prev)
+		prefix[prev] = max(prefix[row],prefix[prev])
+		prefix[prev] = max(prefix[row],prefix[prev])
+		prev = row
+		freq[row] += 1
+		# TODO reference wedlug freq
+
+	reference = {}
+	for row in rows:
+		p_len = prefix[row]
+		if p_len:
+			p = row[:p_len]
+			if p in reference:
+				if p_len<len(row):
+					line = '<{0}+{1}'.format(reference[p],row[p_len:])
+				else:
+					line = '<{0}'.format(reference[p])
+			else:
+				i = len(reference)+1
+				if p_len<len(row):
+					line = '>{0}^{1}={2}'.format(i,p_len,row)
+				else:
+					line = '>{0}={1}'.format(i,row)
+				reference[p] = str(i)
+		else:
+			line = '='+row
+		out += line+'\n'
+	return out
+
+#######################################
+
 if __name__=="__main__":
-	for x in decode(data):
-		print(x)
+	if 0:
+		for x in decode(data):
+			print(x)
+	if 1:
+		print(encode(['ala','ma','kota','ala','ma','psa']))
+		e = encode([x.strip() for x in """
+			http://google.com/q=maciek
+			http://google.com/q=warszawa
+			https://onet.pl/vod/costam/odcinek/1
+			https://google.com/q=test
+			http://player.pl/costam/s01/e01
+			http://google.com/q=psy
+			https://google.com/q=zupa
+			http://google.com/q=maciek
+			cos od czapy
+			xxx
+			cos
+		""".split('\n') if x.strip()])
+		print(e)
+		for x in decode(e):
+			print(x)
+
