@@ -4,6 +4,7 @@ import re
 
 # 2 x shorter values -> czy warto?
 base_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+base_chars = "0123456789"
 def basex_encode(value):
 	pass
 def basex_decode(text):
@@ -12,8 +13,7 @@ def basex_decode(text):
 		v *= len(base_chars)
 		v += base_chars.index(x)
 	return v
-
-print (basex_decode('ZZZZZZZZ'))
+#print (basex_decode('ZZZZZZZZ'))
 
 ############################################################
 
@@ -21,40 +21,22 @@ data = """
 >1^20=http://google.com/q=costam
 1
 1+zzz
-++xxx
--yyy
-.
-*2
-=http://google.com/q=xxx+costam
-$6=yyy
-|2
-^4=https
+0
+*3
+>2=http://google.com/q=xxx+costam
+<1122012120
+*3
 """
 
 def decode(data):
 	out = []
-	reference = {}
+	reference = {'0':None}
 	prev = ''
 	rows = [x.strip() for x in re.split('\n',data) if x.strip()]
 	for row in rows:
 		op,rest=row[0],row[1:]
-		if op=='.':
-			out+=[None]
-			continue
-		elif op=='=':	out+=[rest]
-		elif op=='+':	out+=[prev+rest]
-		elif op=='-':	out+=[prev[:-len(rest)]+rest]
-		elif op=='*':	out+=[prev]*int(rest)
-		elif op=='|':
-			out+=out[-int(rest):]
-			continue # DO NOT change prev
-		elif op in '$^':
-			i = rest.index('=')
-			n,v = int(rest[:i]),rest[i+1:]
-			if op=='$':
-				out += [prev[:-n]+v]
-			elif op=='^':
-				out += [v+prev[n:]]
+		if op=='=':	out+=[rest]
+		elif op=='*':	out+=[prev]*(int(rest)-1)
 		elif op in '>':
 			i = rest.index('=')
 			x,v = rest[:i],rest[i+1:]
@@ -71,6 +53,9 @@ def decode(data):
 				out += [reference[k]+v]
 			else:
 				out += [reference[row]]
+		elif op=='<':
+			for k in rest:
+				out += [reference[k]]
 		prev = out[-1]
 	return out
 
@@ -100,8 +85,16 @@ def encode(rows):
 		freq[row] += 1
 		# TODO reference wedlug freq
 
-	reference = {}
+	reference = {None:'0'}
+	repeat_cnt = 0
+	prev = ''
 	for row in rows:
+		if row==prev:
+			repeat_cnt += 1
+			continue
+		elif repeat_cnt>0:
+			out += '*'+str(repeat_cnt+1)+'\n'
+			repeat_cnt=0
 		p_len = prefix[row]
 		if p_len:
 			p = row[:p_len]
@@ -111,7 +104,7 @@ def encode(rows):
 				else:
 					line = '{0}'.format(reference[p])
 			else:
-				i = len(reference)+1
+				i = len(reference)
 				if p_len<len(row):
 					line = '>{0}^{1}={2}'.format(i,p_len,row)
 				else:
@@ -120,6 +113,7 @@ def encode(rows):
 		else:
 			line = '='+row
 		out += line+'\n'
+		prev = row
 	return out
 
 #######################################
@@ -128,6 +122,7 @@ if __name__=="__main__":
 	if 1:
 		for x in decode(data):
 			print(x)
+		print('-'*20)
 	if 1:
 		print(encode(['ala','ma','kota','ala','ma','psa']))
 		e = encode([x.strip() for x in """
@@ -141,9 +136,21 @@ if __name__=="__main__":
 			http://google.com/q=maciek
 			cos od czapy
 			xxx
+			xxx
+			xxx
+			xxx
+			xxx
+			xxx
+			xxx
+			xxx
+			xxx
 			cos
+			cos
+			cos
+			x TODO jak tego nie bedzie to nie zadziala cos*3
 		""".split('\n') if x.strip()])
+		print('-'*20)
 		print(e)
+		print('-'*20)
 		for x in decode(e):
 			print(x)
-
