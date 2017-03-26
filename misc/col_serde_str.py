@@ -1,12 +1,29 @@
 import re
 
+############################################################
+
+# 2 x shorter values -> czy warto?
+base_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+def basex_encode(value):
+	pass
+def basex_decode(text):
+	v=base_chars.index(text[0])
+	for x in text[1:]:
+		v *= len(base_chars)
+		v += base_chars.index(x)
+	return v
+
+print (basex_decode('ZZZZZZZZ'))
+
+############################################################
+
 data = """
 >1^20=http://google.com/q=costam
-<1
-<1+zzz
+1
+1+zzz
 ++xxx
 -yyy
-N
+.
 *2
 =http://google.com/q=xxx+costam
 $6=yyy
@@ -21,7 +38,7 @@ def decode(data):
 	rows = [x.strip() for x in re.split('\n',data) if x.strip()]
 	for row in rows:
 		op,rest=row[0],row[1:]
-		if op=='N':
+		if op=='.':
 			out+=[None]
 			continue
 		elif op=='=':	out+=[rest]
@@ -47,13 +64,13 @@ def decode(data):
 			else:
 				reference[x] = v
 			out += [v]
-		elif op in '<':
-			if rest.isdigit():
-				out += [reference[rest]]
-			else:
-				i = rest.index('+')
-				k,v = rest[:i],rest[i+1:]
+		elif op in base_chars:
+			if '+' in row:
+				i = row.index('+')
+				k,v = row[:i],row[i+1:]
 				out += [reference[k]+v]
+			else:
+				out += [reference[row]]
 		prev = out[-1]
 	return out
 
@@ -90,9 +107,9 @@ def encode(rows):
 			p = row[:p_len]
 			if p in reference:
 				if p_len<len(row):
-					line = '<{0}+{1}'.format(reference[p],row[p_len:])
+					line = '{0}+{1}'.format(reference[p],row[p_len:])
 				else:
-					line = '<{0}'.format(reference[p])
+					line = '{0}'.format(reference[p])
 			else:
 				i = len(reference)+1
 				if p_len<len(row):
@@ -108,7 +125,7 @@ def encode(rows):
 #######################################
 
 if __name__=="__main__":
-	if 0:
+	if 1:
 		for x in decode(data):
 			print(x)
 	if 1:
