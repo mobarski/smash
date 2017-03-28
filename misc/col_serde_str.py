@@ -1,5 +1,9 @@
 import re
 
+# TODO add row to dict using another row or prefix/suffix
+# TODO ? numeric as text
+# TODO ? date/time
+
 ############################################################
 
 # 2 x shorter values -> czy warto?
@@ -35,10 +39,13 @@ def decode(data):
 	rows = [x.strip() for x in re.split('\n',data) if x.strip()]
 	for row in rows:
 		op,rest=row[0],row[1:]
-		if op=='=':	out+=[rest]
+		if op=='#':	continue
+		elif op=='=':	out+=[rest]
 		elif op=='*':	out+=[prev]*(int(rest)-1)
 		elif op in '>':
-			i = rest.index('=')
+			i = rest.index('=') # define word
+			#i2 = rest.index(':') # TODO define word using another word from dictionary
+			#i3 = rest.index('#') # TODO do not output the word, just define it
 			x,v = rest[:i],rest[i+1:]
 			if '^' in x:
 				k,n = x.split('^')
@@ -77,13 +84,58 @@ def encode(rows):
 	prefix = {'':0}
 	prev = ''
 	freq = defaultdict(int)
+	len_freq = defaultdict(int)
 	for row in sorted(rows):
 		prefix[row] = prefix_len(row,prev)
 		prefix[prev] = max(prefix[row],prefix[prev])
 		prefix[prev] = max(prefix[row],prefix[prev])
 		prev = row
 		freq[row] += 1
+		if row is not None and row!='':
+			len_freq[len(row)] += 1
 		# TODO reference wedlug freq
+
+	# stats
+	if 1:
+		all_cnt = len(rows)
+		distinct_cnt = len(freq)
+		null_cnt = freq.get(None,0)
+		empty_cnt = freq.get('',0)
+		
+		# simplify other calculations
+		freq[None] = 0
+		freq[''] = 0
+		del freq[None]
+		del freq['']
+		
+		min_val = min(freq)
+		max_val = max(freq)
+		min_val_cnt = freq[min_val]
+		max_val_cnt = freq[max_val]
+		min_len = min(len_freq)
+		max_len = max(len_freq)
+		min_len_cnt = len_freq[min_len]
+		max_len_cnt = len_freq[max_len]
+		max_freq = max(freq.values())
+		max_freq_cnt = sum([(1 if x==max_freq else 0) for x in freq.values()])
+		max_freq_val = [k for k,v in freq.items() if v==max_freq]
+		out += '#{0}={1}\n'.format('A',all_cnt)
+		out += '#{0}={1}\n'.format('D',distinct_cnt)
+		out += '#{0}={1}\n'.format('N',null_cnt)
+		out += '#{0}={1}\n'.format('E',empty_cnt)
+		out += '#{0}={1}\n'.format('LV',min_val)
+		out += '#{0}={1}\n'.format('HV',max_val)
+		out += '#{0}={1}\n'.format('LVC',min_val_cnt)
+		out += '#{0}={1}\n'.format('HVC',max_val_cnt)
+		out += '#{0}={1}\n'.format('LL',min_len)
+		out += '#{0}={1}\n'.format('HL',max_len)
+		out += '#{0}={1}\n'.format('LLC',max_len_cnt)
+		out += '#{0}={1}\n'.format('HLC',max_len_cnt)
+		out += '#{0}={1}\n'.format('ML','') # TODO ML -> median length (excluding empty)
+		out += '#{0}={1}\n'.format('AL','') # TODO AL -> average length (excluding empty)
+		out += '#{0}={1}\n'.format('HF',max_freq)
+		out += '#{0}={1}\n'.format('HFV',max_freq_val[0])
+		out += '#{0}={1}\n'.format('HFC',max_freq_cnt)
 
 	reference = {None:'0'}
 	repeat_cnt = 0
