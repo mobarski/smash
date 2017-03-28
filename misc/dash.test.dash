@@ -1,0 +1,16 @@
+*** sekcja ***
++ ========= ======== ================
++	one		two		three
++ ========= ======== ================
+	to		jest		test
+	raz		2		trzy
+	comment
+	
+*** costam *** 		xxx
+@ ======== ===================
+@	one		two
+@ ======== ====================
+	aaa
+!! 	comment
+	bbb		zzz
+	ccc
