@@ -10,6 +10,7 @@
 ## - default value changed from None to empty string 
 
 import re
+from textwrap import dedent
 
 # TODO rename parse
 # TODO rename cnt -> cols -> col_cnt
@@ -55,7 +56,6 @@ __SCITE_CFG = """
 ###################################################
 
 if __name__=="__main__":
-	from textwrap import dedent
 	test = """
 	*** sekcja ***
 		to		jest		test
@@ -76,4 +76,4 @@ if __name__=="__main__":
 	"""
 	for name,meta,body in sections(test):
 		#print(name,parse(body,comment='#',get_comments=False))
-		print(name,parse(body,select='!@'))
+		print(name,parse(body))
