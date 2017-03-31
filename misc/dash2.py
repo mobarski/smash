@@ -51,6 +51,7 @@ __SCITE_CFG = """
 	use.tabs.*.dash=1
 	tab.size.*.dash=8
 	indent.size.*.dash=8
+	fold.flags=0
 """
 
 ###################################################
@@ -74,6 +75,6 @@ if __name__=="__main__":
 	!	zzz	xxx	xxx
 		
 	"""
-	for name,meta,body in sections(test):
+	for name,hint,body in sections(test):
 		#print(name,parse(body,comment='#',get_comments=False))
 		print(name,parse(body))

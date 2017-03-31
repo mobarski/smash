@@ -20,6 +20,7 @@
 @	3. poczatek dlugiego napisu
 @	   a) w linijce wlasciwej
 @	   b) w kolejnej linijce, a we wlasciwej znacznik dlugiego napisu (znak '@')
+@	   c) roznie, decyduja prowadnice i wyrownanie
 	opcja b bardziej czytelna
 >	wygrywa opcja b
 
@@ -33,20 +34,28 @@
 	
 @	5. znacznik dlugiego napisu
 @	   a) pojedynczy znak np '@'
-@	   b) konfiguracja funkcji laczacej napis -> begin,dlm,end
+@	   b) konfiguracja funkcji laczacej napis -> begin,delimiter,end
 @	   c) szablon zwijajacy ten i poprzedni element -> {1}({0}) lub {0}+{1}
->	CIEZKI WYBOR
+@	   d) szablony / funkcje deklarowane osobne, znacznik zawiera tylko nazwe np. '@plus'
+	opcja a jest najprostsza
+	opcja d jest bardziej modularna od b i c
+	w opcji d mozna ustalic liste typowych laczen np @ @space @coma @plus 
+>	zaczynamy z opcja a, potem realizujemy d, a pozniej b i/lub c
 
 @	6. wartosci wieloliniowe
 @	   a) w jednej kolumnie
 @	   b) w wielu kolumnach
-	opcja a powoduje konflikfy z punktem 7 (wiele znacznikow dlugiego napisu)
-	opcja a pozwala na bardziej kompaktowy zapis
+	opcja b powoduje konflikfy z punktem 7 (wiele znacznikow dlugiego napisu)
+	opcja b pozwala na bardziej kompaktowy zapis
+	opcja b nie wyglada czytelnie gdy jest kilka znacznikow dlugich napisow
+>	wygrywa opcja a
+>	wartosci wieloliniowe musza byc zwijalne w edytorze
 
 @	7. wiele znacznikow dlugiego napisu
 @	   a) obsluga tylko jednego na raz w wierszach sklejajacych
 @	   b) mozliwosc sklejani napisow dla kilku znacznikow w pojedynczym wierszu
-	opcja b jest bardziej intuicyjna
+	opcja b jest bardziej intuicyjna ale konflikt z 6 (wartrosci w wielu kolumnach)
+>	wygrywa opcja b
 
 
 *** with_expr *** 	calculate total m/f gender score, infered gender and best guess for gender
@@ -54,21 +63,7 @@
 
 >	NEW COLUMN	EXPR
 
->	opcja A
-	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
-	m_score			
-	|		m_name_login			
-	|		+ m_surname_login
-	|		+ m_name_nick
-	|		+ m_surname_nick
-	|		+ m_firstname*m_firstname
-	|		+ m_lastname
-	|		+ m_dim_login
-	|		+ m_dim_nick
-	|		+ m_dim_name
-	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
-	
->	opcja A
+>	opcja 1b 2a 3b 5a 6a 7b
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
 	f_score		@			xxx		@
 	|		f_name_login +				aaa
@@ -85,8 +80,39 @@
 	|		f_suffix_firstname +
 	|		f_suffix_lastname
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
-	
->	opcja B (up)
+
+>	opcja 1b 2a 3a 5x 6a
+	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
+	m_score		m_name_login	
+	|		+ m_surname_login
+	|		+ m_name_nick
+	|		+ m_surname_nick
+	|		+ m_firstname*m_firstname
+	|		+ m_lastname
+	|		+ m_dim_login
+	|		+ m_dim_nick
+	|		+ m_dim_name
+	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
+
+>	opcja 1b 2a 3b 5d 6a 7b -> 
+	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
+	f_score		@			xxx		@@plus
+	|		aaa					f_name_login
+	|		bbb					f_surname_login	
+	|		ccc					f_name_nick
+	|		|					f_surname_nick
+	|		|					f_firstname*f_firstname
+	|		|					f_lastname
+	|		|					f_dim_login
+	|		|					f_dim_nick
+	|		|					f_dim_name
+	|		|					f_suffix_login
+	|		|					f_suffix_nick
+	|		|					f_suffix_firstname
+	|		|					f_suffix_lastname
+	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
+
+>	opcja 1a 2a 3b 5a 6a 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 			|	f_name_login +			
 			|	f_surname_login +		
@@ -104,7 +130,7 @@
 	f_score		^			xxx		^
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
 	
->	opcja C
+>	opcja 1b 2a 3b 5a 6a 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	f_score		@			xxx		@
 			|	f_name_login			|	aaa
@@ -121,8 +147,8 @@
 			|	+ f_suffix_firstname
 			|	+ f_suffix_lastname
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
-	
->	opcja C
+
+>	opcja 1b 2a 3b 5a 6a 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	gender_infered	@					@	
 			|	if(m_score>f_score,'M',		|	x
@@ -130,35 +156,35 @@
 			|	      null))
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
->	opcja D
+>	opcja 1b 2b 3c 5x 6x 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	f_score		f_name_login + f_surname_login + f_name_nick + f_surname_nick + f_firstname*f_firstname + f_lastname + f_dim_login + f_dim_nick + f_dim_name + f_suffix_login + f_suffix_nick + f_suffix_firstname + f_suffix_lastname
 	|					xxx		yyy
 	|									aaa + bbb + ccc + ddd + eee + fff + ggg + hhh + iii + jjj + kkk + lll + mmm + nnn + ooo + ppp
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
->	opcja E
+>	opcja 1b 2b 3c 5x 6x 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	f_score		f_name_login + f_surname_login + f_name_nick + f_surname_nick + f_firstname*f_firstname + f_lastname + f_dim_login + f_dim_nick + f_dim_name + f_suffix_login + f_suffix_nick + f_suffix_firstname + f_suffix_lastname
 	|		|			xxx		yyy
 	|		|			|		|		aaa + bbb + ccc + ddd + eee + fff + ggg + hhh + iii + jjj + kkk + lll + mmm + nnn + ooo + ppp
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
->	opcja F (up)
+>	opcja 1a 2b 3c 5x 6x 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	|		|			|		|		aaa + bbb + ccc + ddd + eee + fff + ggg + hhh + iii + jjj + kkk + lll + mmm + nnn + ooo + ppp
 	|		|			xxx		yyy
 	f_score		f_name_login + f_surname_login + f_name_nick + f_surname_nick + f_firstname*f_firstname + f_lastname + f_dim_login + f_dim_nick + f_dim_name + f_suffix_login + f_suffix_nick + f_suffix_firstname + f_suffix_lastname
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
->	opcja G
+>	opcja 1b 2b 3c 5x 6x 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
-	f_score		|			xxx		yyy		|
+	f_score		@			xxx		yyy		@
 	|		f_name_login + f_surname_login + f_name_nick + f_surname_nick + f_firstname*f_firstname + f_lastname + f_dim_login + f_dim_nick + f_dim_name + f_suffix_login + f_suffix_nick + f_suffix_firstname + f_suffix_lastname
 	|		|			|		|		aaa + bbb + ccc + ddd + eee + fff + ggg + hhh + iii + jjj + kkk + lll + mmm + nnn + ooo + ppp
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
->	opcja H
+>	opcja 1b 2b 3b 5a 6x 7b
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	f_score		@			xxx		yyy		@
 	|		f_name_login + f_surname_login + f_name_nick + f_surname_nick + f_firstname*f_firstname + f_lastname + f_dim_login + f_dim_nick + f_dim_name + f_suffix_login + f_suffix_nick + f_suffix_firstname + f_suffix_lastname
@@ -166,7 +192,7 @@
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 
 
->	opcja I
+>	opcja 1b 2a 3b 5a 6a 7a
 	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
 	f_score		@			xxx		@
 			|					|	aaa
@@ -187,6 +213,16 @@
 			|	+ f_suffix_lastname
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
 
+>	opcja 1b 2a 3b 5a 6b 7b
+	gender2		coalesce(gender_declared,gender_infered,gender_predicted)
+	f_score		@			xxx		@
+			|					|	aaa	bbb	ccc
+			|	f_name_login		+ f_surname_login		+ f_name_nick						
+			|	+ f_surname_nick	+ f_firstname*f_firstname
+			|	+ f_lastname		+ f_dim_login			+ f_dim_nick
+			|	+ f_dim_name		+ f_suffix_login		+ f_suffix_nick
+			|	+ f_suffix_firstname	+ f_suffix_lastname
+	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
 
 > ---
 	year			vda_year	nozero
