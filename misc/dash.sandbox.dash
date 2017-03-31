@@ -1,20 +1,53 @@
 @dash mk3 sandbox
 
-@	test roznych form zapisu dlugich wartosci
-@ 	klaruje sie podzial metod ze wzgledu na
-@
+@	test roznych form zapisu dlugich wartosci klaruje sie podzial metod ze wzgledu na
+
 @	1. kierunek
 @	   a) z gory - poprzedzajacy wlasciwa linijke
 @	   b) z dolu - nastepujacy po wlasciwej linijce
 	opcja a wydaje sie byc prostsza w implementacji
-	opcja b wydaje sie byc bardziej czytelna	
+	opcja b wydaje sie byc bardziej czytelna
+>	wygrywa opcja b
 
 @	2. konkatenacje
 @	   a) jednej kolumny w wielu liniach
 @	   b) jednej kolumny w konkretnej linii
 	opcja a wydaje sie byc bardziej czytelna
 	opcja b wydaje sie byc prostsza w implementacji
->	
+	opcja a zawiera mozliwosc zapisu z opcji a
+>	wygrywa opcja a
+
+@	3. poczatek dlugiego napisu
+@	   a) w linijce wlasciwej
+@	   b) w kolejnej linijce, a we wlasciwej znacznik dlugiego napisu (znak '@')
+	opcja b bardziej czytelna
+>	wygrywa opcja b
+
+@	4. prowadnice (znaki '|')
+@	   a) pod znacznikiem dlugiego napisu, napis po tabulacji
+@	   b) pod znacznikiem dlugiego napisu, napis po spacji
+@	   c) pod pierwsza kolumna, napis we wlasciwej kolumnie
+@	   d) pod poprzednia kolumna, napis we wlasciwej kolumnie
+	opcje c i d sa wygodne do edycji excelem
+>	odpada opcja d -> najmniej czytelna
+	
+@	5. znacznik dlugiego napisu
+@	   a) pojedynczy znak np '@'
+@	   b) konfiguracja funkcji laczacej napis -> begin,dlm,end
+@	   c) szablon zwijajacy ten i poprzedni element -> {1}({0}) lub {0}+{1}
+>	CIEZKI WYBOR
+
+@	6. wartosci wieloliniowe
+@	   a) w jednej kolumnie
+@	   b) w wielu kolumnach
+	opcja a powoduje konflikfy z punktem 7 (wiele znacznikow dlugiego napisu)
+	opcja a pozwala na bardziej kompaktowy zapis
+
+@	7. wiele znacznikow dlugiego napisu
+@	   a) obsluga tylko jednego na raz w wierszach sklejajacych
+@	   b) mozliwosc sklejani napisow dla kilku znacznikow w pojedynczym wierszu
+	opcja b jest bardziej intuicyjna
+
 
 *** with_expr *** 	calculate total m/f gender score, infered gender and best guess for gender
 @table	df
@@ -23,7 +56,7 @@
 
 >	opcja A
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
-	m_score		@	
+	m_score			
 	|		m_name_login			
 	|		+ m_surname_login
 	|		+ m_name_nick
@@ -153,3 +186,13 @@
 			|	+ f_suffix_firstname
 			|	+ f_suffix_lastname
 	gender_infered	if(m_score>f_score,'M',if(f_score>m_score,'F',null))
+
+
+> ---
+	year			vda_year	nozero
+	production		vdp_production	nvl	trim
+	distribution		@		or	trim
+				| vda_distribution
+				| vdp_distribution
+	provider		vda_provider	nvl	trim
+	countries
